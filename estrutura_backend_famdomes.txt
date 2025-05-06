@@ -1,0 +1,19 @@
+/home/ubuntu/famdomes_backend
+└── /home/ubuntu/famdomes_backend/app
+    ├── /home/ubuntu/famdomes_backend/app/config.py
+    ├── /home/ubuntu/famdomes_backend/app/main.py
+    ├── /home/ubuntu/famdomes_backend/app/models
+    │   ├── /home/ubuntu/famdomes_backend/app/models/atendimento.py
+    │   ├── /home/ubuntu/famdomes_backend/app/models/intents.py
+    │   └── /home/ubuntu/famdomes_backend/app/models/pagamentos.py
+    ├── /home/ubuntu/famdomes_backend/app/routes
+    │   ├── /home/ubuntu/famdomes_backend/app/routes/agendamento.py
+    │   ├── /home/ubuntu/famdomes_backend/app/routes/ia.py
+    │   ├── /home/ubuntu/famdomes_backend/app/routes/painel.py
+    │   ├── /home/ubuntu/famdomes_backend/app/routes/stripe.py
+    │   └── /home/ubuntu/famdomes_backend/app/routes/whatsapp.py
+    └── /home/ubuntu/famdomes_backend/app/utils
+        ├── /home/ubuntu/famdomes_backend/app/utils/ollama.py
+        └── /home/ubuntu/famdomes_backend/app/utils/risco.py
+
+5 directories, 12 files

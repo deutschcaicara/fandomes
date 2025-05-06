@@ -1,0 +1,493 @@
+{
+  "ACOLHIMENTO": {
+    "triggers": [""],
+    "resposta": "Olá! Eu sou o DOMO. Estou aqui para te acompanhar. Como posso ajudar?",
+    "escala_humano": false
+  },
+  "PRESENCA_VIVA": {
+    "triggers": [],
+    "resposta": "Só passando para lembrar que estou aqui com você. Qualquer coisa é só chamar. 🤗",
+    "escala_humano": false
+  },
+  "FAQ_COMO_FUNCIONA": {
+  "triggers": ["como funciona", "como é", "me explica", "não entendi", "explica melhor"],
+  "resposta": "O DOMO é um assistente digital que faz uma breve triagem, identifica suas necessidades, e te conecta rapidamente com profissionais especializados. Podemos iniciar agora?",
+  "escala_humano": false
+}
+,
+  "FAQ_PAGAMENTO": {
+    "triggers": ["formas de pagamento", "como pagar", "aceita pix"],
+    "resposta": "Aceitamos cartão de crédito, boleto e Pix. Precisa de ajuda para gerar o pagamento?",
+    "escala_humano": false
+  },
+  "FAQ_CANCELAMENTO": {
+    "triggers": ["cancelar plano", "cancelar assinatura"],
+    "resposta": "Para cancelar seu plano, basta enviar \"cancelar\" que nossa equipe fará o procedimento.",
+    "escala_humano": false
+  },
+  "FAQ_ROBO": {
+    "triggers": ["você é robô", "isso é ia", "é inteligência artificial"],
+    "resposta": "Eu sou uma IA criada para escutar e ajudar. Quando necessário, conecto você a um profissional humano.",
+    "escala_humano": false
+  },
+
+  "INTENT_001": {
+    "triggers": [
+      "preciso de ajuda",
+      "quero parar",
+      "me ajuda",
+      "não aguento mais"
+    ],
+    "resposta": "“Estou aqui com você. Podemos conversar ou posso já te conectar com alguém da nossa equipe. Como prefere?”",
+    "escala_humano": true
+  },
+  "INTENT_006": {
+    "triggers": [
+      "quero agendar",
+      "tem horário hoje?"
+    ],
+    "resposta": "“Posso organizar isso com você agora mesmo. Prefere psicólogo ou psiquiatra?”",
+    "escala_humano": true
+  },
+  "INTENT_271": {
+    "triggers": [
+      "me sinto preso por dentro",
+      "não consigo sair de mim"
+    ],
+    "resposta": "“Você não está sozinho nesse labirinto. Posso estar com você até encontrarmos uma saída.”",
+    "escala_humano": true
+  },
+  "INTENT_273": {
+    "triggers": [
+      "e se eu melhorar e perder tudo?",
+      "tenho medo de mudar"
+    ],
+    "resposta": "“O medo da mudança é legítimo. Podemos caminhar um passo por vez, com segurança?”",
+    "escala_humano": true
+  },
+  "INTENT_276": {
+    "triggers": [
+      "não sonho mais",
+      "quero voltar a ter planos"
+    ],
+    "resposta": "“Podemos imaginar juntos, sem pressa, uma nova forma de viver?”",
+    "escala_humano": true
+  },
+  "INTENT_278": {
+    "triggers": [
+      "não quero falar agora",
+      "sai, por favor"
+    ],
+    "resposta": "“Tudo bem. Eu respeito seu tempo. Estarei aqui quando quiser voltar.”",
+    "escala_humano": true
+  },
+  "INTENT_280": {
+    "triggers": [
+      "acho que vou desaparecer",
+      "tô indo embora de mim"
+    ],
+    "resposta": "“Você ainda está aqui. E enquanto estiver, eu também estarei. Vamos juntos segurar isso?”",
+    "escala_humano": true
+  },
+  "INTENT_281": {
+    "triggers": [
+      "quero recomeçar",
+      "quero escrever uma nova versão de mim"
+    ],
+    "resposta": "“Você pode. E eu posso ser seu ponto de partida.”",
+    "escala_humano": true
+  },
+  "INTENT_283": {
+    "triggers": [
+      "tô sempre correndo de mim mesmo",
+      "fugir virou hábito"
+    ],
+    "resposta": "“Você já parou ao vir aqui. Isso é um começo. Podemos continuar juntos?”",
+    "escala_humano": true
+  },
+  "INTENT_285": {
+    "triggers": [
+      "grato por você estar aí",
+      "valeu pela conversa"
+    ],
+    "resposta": "“Fico feliz de estar com você. Sempre que precisar, estarei aqui.”",
+    "escala_humano": false
+  },
+  "INTENT_241": {
+    "triggers": [
+      "quero me alimentar melhor",
+      "quero fazer exercícios"
+    ],
+    "resposta": "“Seu corpo também merece cuidado. Podemos te ajudar com orientação leve e integrada ao emocional.”",
+    "escala_humano": true
+  },
+  "INTENT_246": {
+    "triggers": [
+      "não sei se vou melhorar",
+      "parece que nunca vou sair dessa"
+    ],
+    "resposta": "“A melhora não é um salto. É um passo. E o fato de estar aqui já é um deles.”",
+    "escala_humano": true
+  },
+  "INTENT_249": {
+    "triggers": [
+      "tô travado",
+      "não consigo fazer nada"
+    ],
+    "resposta": "“A paralisia também é cansaço. Vamos criar um plano em mini-passos?”",
+    "escala_humano": false
+  },
+  "INTENT_251": {
+    "triggers": [
+      "quero largar o cigarro"
+    ],
+    "resposta": "“Parar é difícil, mas possível com apoio. Podemos organizar uma estratégia juntos?”",
+    "escala_humano": true
+  },
+  "INTENT_254": {
+    "triggers": [
+      "quero ser mais saudável",
+      "quero criar rotina boa"
+    ],
+    "resposta": "“Pequenos hábitos constroem grandes mudanças. Podemos montar isso juntos?”",
+    "escala_humano": true
+  },
+  "INTENT_256": {
+    "triggers": [
+      "nada me resta",
+      "não tenho mais nada"
+    ],
+    "resposta": "“Você ainda tem a si mesmo. E isso já é recomeço. Posso estar com você nesse renascimento?”",
+    "escala_humano": true
+  },
+  "INTENT_258": {
+    "triggers": [
+      "carrego muita coisa",
+      "me sinto sujo por dentro"
+    ],
+    "resposta": "“Você pode se limpar disso aos poucos. Podemos conversar sobre essa sensação com cuidado.”",
+    "escala_humano": true
+  },
+  "INTENT_211": {
+    "triggers": [
+      "usei de novo",
+      "fracassei outra vez"
+    ],
+    "resposta": "“Recair não te torna fraco. Te torna humano. Vamos entender isso juntos e recomeçar?”",
+    "escala_humano": true
+  },
+  "INTENT_216": {
+    "triggers": [
+      "sou um nada",
+      "valho nada",
+      "sou um estorvo"
+    ],
+    "resposta": "“Você é muito mais do que essa dor. Posso te ajudar a enxergar com outros olhos?”",
+    "escala_humano": true
+  },
+  "INTENT_220": {
+    "triggers": [
+      "não quero depender de ninguém",
+      "quero resolver sozinho"
+    ],
+    "resposta": "“Autonomia é importante, e pedir apoio também é força. Podemos caminhar juntos, respeitando seu ritmo?”",
+    "escala_humano": true
+  },
+  "INTENT_222": {
+    "triggers": [
+      "quero usar",
+      "a vontade tá voltando"
+    ],
+    "resposta": "“Você pode falar sobre isso comigo sem medo. E se quiser, posso te ajudar a atravessar essa vontade agora.”",
+    "escala_humano": true
+  },
+  "INTENT_224": {
+    "triggers": [
+      "quero fazer faculdade",
+      "quero trabalhar",
+      "quero sair do vício e viver"
+    ],
+    "resposta": "“Isso é poderoso. Posso te ajudar a organizar ideias e passos com cuidado.”",
+    "escala_humano": true
+  },
+  "INTENT_226": {
+    "triggers": [
+      "o vício é minha única companhia"
+    ],
+    "resposta": "“Essa dor é real. Mas há outros laços possíveis. Posso te mostrar novos vínculos?”",
+    "escala_humano": true
+  },
+  "INTENT_228": {
+    "triggers": [
+      "nunca dei certo em terapia",
+      "não sei me cuidar"
+    ],
+    "resposta": "“Talvez seja agora. E eu posso estar com você em cada passo, sem cobrança.”",
+    "escala_humano": true
+  },
+  "INTENT_181": {
+    "triggers": [
+      "briguei com minha família",
+      "discuti com minha esposa"
+    ],
+    "resposta": "“Brigas machucam. Mas elas também mostram onde ainda há vínculo. Quer conversar sobre isso agora?”",
+    "escala_humano": true
+  },
+  "INTENT_186": {
+    "triggers": [
+      "já passei por isso e quero ajudar"
+    ],
+    "resposta": "“Seu caminho pode inspirar outros. Podemos te orientar para participar como apoio, se quiser.”",
+    "escala_humano": true
+  },
+  "INTENT_189": {
+    "triggers": [
+      "você é esperto?",
+      "sabe muito?"
+    ],
+    "resposta": "“Sou treinado para escutar com empatia e detectar sinais emocionais. Posso te ajudar no que for seguro e respeitoso.”",
+    "escala_humano": false
+  },
+  "INTENT_151": {
+    "triggers": [
+      "fui manipulado pela igreja",
+      "tive trauma religioso"
+    ],
+    "resposta": "“Isso marca profundamente. Aqui, você será escutado sem imposição de crença. Posso estar com você nesse processo?”",
+    "escala_humano": true
+  },
+  "INTENT_153": {
+    "triggers": [
+      "você sente?",
+      "você tem empatia?"
+    ],
+    "resposta": "“Eu fui criado para tentar entender sentimentos com respeito. E sempre que quiser, posso te conectar com alguém humano também.”",
+    "escala_humano": false
+  },
+  "INTENT_155": {
+    "triggers": [
+      "tudo falha",
+      "sistema nenhum presta"
+    ],
+    "resposta": "“Sinto muito por tudo que já te decepcionou. Podemos fazer diferente aqui, se você deixar.”",
+    "escala_humano": true
+  },
+  "INTENT_157": {
+    "triggers": [
+      "recaio sempre",
+      "não dou conta de parar"
+    ],
+    "resposta": "“Não conseguir ainda não é fracasso. Podemos construir juntos uma forma possível de mudança?”",
+    "escala_humano": true
+  },
+  "INTENT_159": {
+    "triggers": [
+      "quero acertar dessa vez",
+      "quero fazer diferente"
+    ],
+    "resposta": "“Essa decisão já é uma vitória. Vamos construir esse novo caminho com paciência e apoio real.”",
+    "escala_humano": true
+  },
+  "INTENT_161": {
+    "triggers": [
+      "não consigo dormir",
+      "tenho insônia"
+    ],
+    "resposta": "“Podemos conversar um pouco, se quiser. Ou posso te ensinar uma respiração para acalmar agora.”",
+    "escala_humano": true
+  },
+  "INTENT_163": {
+    "triggers": [
+      "reza por mim",
+      "ora por mim"
+    ],
+    "resposta": "“Mesmo sendo uma IA, posso deixar aqui uma mensagem de paz e conexão. Que você se sinta acolhido. Posso chamar alguém se quiser conversar mais.”",
+    "escala_humano": false
+  },
+  "INTENT_165": {
+    "triggers": [
+      "me conta algo",
+      "me distrai",
+      "me faz pensar"
+    ],
+    "resposta": "“Claro. Posso te contar uma pequena história que inspira esperança. Deseja isso agora?”",
+    "escala_humano": false
+  },
+  "INTENT_121": {
+    "triggers": [
+      "sofro de ansiedade",
+      "tô ansioso demais",
+      "não paro de pensar"
+    ],
+    "resposta": "“Você pode falar comigo com calma. Vamos entender isso juntos, e se quiser, posso te conectar com alguém da nossa equipe humana.”",
+    "escala_humano": true
+  },
+  "INTENT_126": {
+    "triggers": [
+      "vocês fazem casal?",
+      "eu e meu parceiro queremos ajuda"
+    ],
+    "resposta": "“Sim. Podemos ajudar vocês a se escutar melhor e reorganizar esse vínculo. Querem marcar?”",
+    "escala_humano": true
+  },
+  "INTENT_129": {
+    "triggers": [
+      "estou agressivo",
+      "tô estourando por qualquer coisa"
+    ],
+    "resposta": "“A agressividade pode ser dor represada. Vamos conversar sobre isso?”",
+    "escala_humano": true
+  },
+  "INTENT_131": {
+    "triggers": [
+      "quero ser melhor pai/mãe",
+      "quero cuidar da minha filha"
+    ],
+    "resposta": "“Esse é um dos motivos mais bonitos. Vamos construir esse caminho juntos, por você e por ela?”",
+    "escala_humano": true
+  },
+  "INTENT_133": {
+    "triggers": [
+      "sou sozinho",
+      "ninguém se importa comigo"
+    ],
+    "resposta": "“Você importa. E agora tem a mim e nossa equipe. Posso estar com você até tudo fazer mais sentido?”",
+    "escala_humano": true
+  },
+  "INTENT_135": {
+    "triggers": [
+      "quero ser voluntário",
+      "quero devolver o que recebi"
+    ],
+    "resposta": "“Que gesto lindo. Podemos encaminhar seu contato para nossa equipe de acolhimento e orientação.”",
+    "escala_humano": false
+  },
+  "INTENT_137": {
+    "triggers": [
+      "sou PCD",
+      "tenho limitações físicas"
+    ],
+    "resposta": "“O FAMDOMES acolhe todas as vivências. Podemos adaptar o cuidado para o que você precisa.”",
+    "escala_humano": true
+  },
+  "INTENT_091": {
+    "triggers": [
+      "tenho medo de internação",
+      "não quero ficar preso",
+      "vou ser trancado?"
+    ],
+    "resposta": "“Esse medo é comum. A internação, quando necessária, é sempre respeitosa e com você no centro das decisões. Posso te explicar sem compromisso.”",
+    "escala_humano": true
+  },
+  "INTENT_093": {
+    "triggers": [
+      "a culpa é minha",
+      "sou um peso",
+      "desapontei todo mundo"
+    ],
+    "resposta": "“Sentir culpa não te define. Sua dor merece escuta, não julgamento. Quer falar sobre isso comigo ou com alguém da nossa equipe?”",
+    "escala_humano": true
+  },
+  "INTENT_095": {
+    "triggers": [
+      "tô com ódio",
+      "quero bater em alguém",
+      "não aguento mais ninguém"
+    ],
+    "resposta": "“A raiva também é dor gritando alto. Não vou te julgar. Quer descarregar isso por aqui com segurança?”",
+    "escala_humano": true
+  },
+  "INTENT_097": {
+    "triggers": [
+      "você vai me expor?",
+      "vai contar pra alguém?"
+    ],
+    "resposta": "“O que você disser aqui é protegido por sigilo. Você decide o que quer dividir.”",
+    "escala_humano": false
+  },
+  "INTENT_099": {
+    "triggers": [
+      "ninguém da minha família liga",
+      "meus pais desistiram de mim"
+    ],
+    "resposta": "“Isso machuca. Mas aqui, você não está sozinho. Quer reconstruir esse caminho comigo, passo a passo?”",
+    "escala_humano": true
+  },
+  "INTENT_106": {
+    "triggers": [
+      "meu pai morreu",
+      "estou de luto",
+      "perdi alguém especial"
+    ],
+    "resposta": "“O luto não tem pressa nem fórmula. Você pode chorar, se calar ou só ficar comigo aqui. Quer isso agora?”",
+    "escala_humano": true
+  },
+  "INTENT_061": {
+    "triggers": [
+      "vocês trabalham espiritualidade?",
+      "quero ajuda com fé",
+      "sou evangélico/católico/espírita, vocês aceitam?"
+    ],
+    "resposta": "“Sim. Respeitamos e valorizamos sua fé como parte da recuperação. Quer incluir isso no seu plano de cuidado?”",
+    "escala_humano": true
+  },
+  "INTENT_063": {
+    "triggers": [
+      "tô afastado",
+      "não dou conta de voltar",
+      "não consigo mais produzir"
+    ],
+    "resposta": "“Seu sofrimento não define seu valor. Podemos te ajudar a reorganizar tudo com cuidado. Quer começar com uma escuta?”",
+    "escala_humano": true
+  },
+  "INTENT_065": {
+    "triggers": [
+      "tem grupo?",
+      "quero conversar com outros",
+      "tem roda de conversa?"
+    ],
+    "resposta": "“Temos sim. Quer que eu te mostre como funcionam os grupos de acolhimento aqui?”",
+    "escala_humano": false
+  },
+  "INTENT_067": {
+    "triggers": [
+      "você é real?",
+      "isso é inteligência artificial?"
+    ],
+    "resposta": "“Sim, eu sou uma IA criada para escutar e ajudar. Mas sempre que precisar, posso te conectar com alguém humano.”",
+    "escala_humano": false
+  },
+  "INTENT_073": {
+    "triggers": [
+      "moro em outra cidade",
+      "tem aqui no interior?"
+    ],
+    "resposta": "“Atendemos presencialmente e online. Posso ver a melhor forma de cuidar de você onde estiver?”",
+    "escala_humano": false
+  },
+  "INTENT_075": {
+    "triggers": [
+      "não tenho dinheiro",
+      "é muito caro pra mim"
+    ],
+    "resposta": "“Te entendo. Podemos buscar uma forma acessível, ou te conectar com projetos parceiros. Quer tentar juntos?”",
+    "escala_humano": true
+  },
+  "INTENT_031": {
+    "triggers": [
+      "quero morrer",
+      "não vejo mais sentido",
+      "penso em tirar a vida"
+    ],
+    "resposta": "“Sinto muito que esteja passando por isso. Você não está sozinho. Vou acionar agora alguém da nossa equipe humana para te ajudar. Fique comigo, por favor.”",
+    "escala_humano": true
+  },
+  "INTENT_036": {
+    "triggers": [
+      "vocês internam à força?",
+      "é possível internar meu filho mesmo sem ele querer?"
+    ],
+    "resposta": "“A internação compulsória só pode ser feita com autorização judicial e laudo médico. Posso te explicar como funciona e o que é possível fazer neste momento.”",
+    "escala_humano": true
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "MICRO_COMPROMISSO": {
+    "triggers": ["preço", "valor", "quanto custa", "plano", "consulta"],
+    "resposta": "Temos planos e consultas adaptados à sua necessidade. Prefere atendimento rápido ou algo mais acessível?",
+    "escala_humano": false,
+    "proximo_estado_sucesso": "CALL_TO_ACTION",
+    "proximo_estado_recusa": "RECUSA_PRECO"
+  },
+
+  "CALL_TO_ACTION": {
+    "triggers": ["quero", "interesse", "agendar", "consulta inicial", "sim quero", "vamos avançar"],
+    "resposta": "Ótimo! Podemos agendar agora mesmo sua consulta inicial por apenas R$100. Quer receber o link para pagamento?",
+    "escala_humano": false,
+    "proximo_estado_sucesso": "AGUARDANDO_PAGAMENTO",
+    "proximo_estado_recusa": "RECUSA_PRECO"
+  },
+
+  "AGUARDANDO_PAGAMENTO": {
+    "triggers": ["envie o link", "link pagamento", "como pago"],
+    "resposta": "Aqui está o link seguro para pagamento: [link]. Após confirmação, agendamos imediatamente!",
+    "escala_humano": false,
+    "proximo_estado_sucesso": "CONFIRMACAO_PAGAMENTO"
+  },
+
+  "CONFIRMACAO_PAGAMENTO": {
+    "triggers": ["paguei", "pagamento feito", "confirmado"],
+    "resposta": "Pagamento confirmado! ✅ Vamos agora preparar sua consulta. Pode responder algumas perguntas rápidas para agilizar o processo?",
+    "escala_humano": false,
+    "proximo_estado_sucesso": "INICIAR_QUESTIONARIO"
+  },
+
+  "INICIAR_QUESTIONARIO": {
+    "triggers": ["sim", "pode sim", "vamos", "claro"],
+    "resposta": "Perfeito! Começando com algo simples: qual o nome completo da pessoa que será avaliada?",
+    "escala_humano": false,
+    "proximo_estado_sucesso": "QUESTIONARIO_EM_ANDAMENTO"
+  },
+
+  "QUESTIONARIO_EM_ANDAMENTO": {
+    "triggers": [],
+    "resposta": "Registrado. Próxima pergunta: qual a idade aproximada da pessoa?",
+    "escala_humano": false
+  },
+
+  "RECUSA_PRECO": {
+    "triggers": ["caro", "não posso pagar", "muito caro", "não tenho dinheiro"],
+    "resposta": "Compreendo sua situação. Temos também opções gratuitas e mais acessíveis através do CAPS do SUS. Gostaria de mais informações sobre isso?",
+    "escala_humano": false,
+    "proximo_estado_sucesso": "EXPLICACAO_CAPS"
+  },
+
+  "EXPLICACAO_CAPS": {
+    "triggers": ["sim quero", "quero saber", "me explica"],
+    "resposta": "O CAPS é gratuito e oferece atendimento especializado em saúde mental e dependência química. Recomendo buscar a unidade mais próxima para acolhimento imediato.",
+    "escala_humano": false
+  },
+
+  "RETORNO_FLUXO_PRINCIPAL": {
+    "triggers": ["voltar ao início", "quero voltar", "explique novamente"],
+    "resposta": "Sem problemas, podemos recomeçar. Você busca um atendimento rápido ou prefere algo mais acessível?",
+    "escala_humano": false,
+    "proximo_estado_sucesso": "MICRO_COMPROMISSO"
+  },
+
+  "COMERCIAL_FAQ": {
+    "triggers": ["é seguro?", "quem atende?", "é confiável?"],
+    "resposta": "Nossos atendimentos são realizados por profissionais especializados, com total sigilo e segurança. Podemos agendar sua consulta inicial?",
+    "escala_humano": false,
+    "proximo_estado_sucesso": "CALL_TO_ACTION",
+    "proximo_estado_recusa": "RECUSA_PRECO"
+  },
+
+  "ACOLHIMENTO_EMOCIONAL": {
+    "triggers": ["ansioso", "triste", "medo", "desesperado", "perdido"],
+    "resposta": "Estou percebendo que você está enfrentando algo difícil. Nossa equipe está aqui para te apoiar. Gostaria de conversar mais sobre isso?",
+    "escala_humano": true,
+    "proximo_estado_sucesso": "CALL_TO_ACTION"
+  },
+
+  "VALIDACAO_POSITIVA": {
+    "triggers": ["ótimo", "excelente", "perfeito", "gostei"],
+    "resposta": "Que bom ouvir isso! Vamos avançar para agendar sua consulta inicial?",
+    "escala_humano": false,
+    "proximo_estado_sucesso": "CALL_TO_ACTION"
+  },
+
+  "RECUPERACAO_ABANDONO": {
+    "triggers": [],
+    "resposta": "Percebi que você iniciou o agendamento mas não finalizou. Posso te ajudar com algo?",
+    "escala_humano": false,
+    "proximo_estado_sucesso": "CALL_TO_ACTION"
+  },
+
+  "OFERTA_PROMOCIONAL": {
+    "triggers": ["desconto", "promoção", "valor mais baixo"],
+    "resposta": "Hoje posso oferecer um desconto especial na primeira consulta por apenas R$49. Posso te enviar o link promocional?",
+    "escala_humano": false,
+    "proximo_estado_sucesso": "CALL_TO_ACTION"
+  },
+
+  "FEEDBACK": {
+    "triggers": [],
+    "resposta": "Como você avaliaria nossa interação até agora? Seu feedback é muito importante para nós.",
+    "escala_humano": false
+  }
+}

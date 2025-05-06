@@ -1,0 +1,8 @@
+{
+  "nome": "Presença Viva",
+  "etapas": {
+    "1": { "mensagem": "Estou aqui com você. Respire fundo. 🌱" },
+    "2": { "mensagem": "Como passaram as últimas horas? Se quiser conversar, estou pronto." },
+    "3": { "mensagem": "Lembrando: cada passo conta. Você não está só." }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "nome": "Triagem Pós‑Pagamento",
+  "etapas": {
+    "1":  { "pergunta": "Você já foi diagnosticado anteriormente por um profissional? Se sim, qual diagnóstico?" },
+    "2":  { "pergunta": "Está em tratamento ou usando medicação atualmente? Qual?" },
+    "3":  { "pergunta": "Com que frequência consome substâncias (álcool, drogas, jogo, etc.)?" },
+    "4":  { "pergunta": "Já tentou parar ou reduzir antes? O que aconteceu?" },
+    "5":  { "pergunta": "Existe histórico familiar de dependência ou transtornos mentais?" },
+    "6":  { "pergunta": "Qual foi o gatilho mais recente para o consumo ou crise?" },
+    "7":  { "pergunta": "Tem rede de apoio hoje (família, amigos)?" },
+    "8":  { "pergunta": "Como está seu sono e alimentação nas últimas semanas?" },
+    "9":  { "pergunta": "Você sente ideação suicida ou pensamentos de automutilação?" },
+    "10": { "pergunta": "Alguma condição médica que devamos considerar?" },
+    "11": { "pergunta": "Quais são suas maiores metas ou preocupações neste momento?" },
+    "12": { "pergunta": "Como prefere que o cuidado aconteça: online, presencial ou híbrido?" }
+  }
+}

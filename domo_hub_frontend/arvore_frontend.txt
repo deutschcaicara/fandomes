@@ -1,0 +1,41 @@
+.
+├── arvore_frontend.txt
+└── domo-hub-app
+    ├── README.md
+    ├── eslint.config.js
+    ├── index.html
+    ├── package-lock.json
+    ├── package.json
+    ├── public
+    │   └── vite.svg
+    ├── src
+    │   ├── App.tsx
+    │   ├── assets
+    │   ├── components
+    │   │   ├── ChatMessage.tsx
+    │   │   ├── KanbanCard.tsx
+    │   │   ├── KanbanColumn.tsx
+    │   │   └── ProtectedRoute.tsx
+    │   ├── contexts
+    │   │   └── AuthContext.tsx
+    │   ├── hooks
+    │   ├── index.css
+    │   ├── main.tsx
+    │   ├── pages
+    │   │   ├── AnalyticsView.tsx
+    │   │   ├── ChatView.tsx
+    │   │   ├── DashboardLayout.tsx
+    │   │   ├── KanbanView.tsx
+    │   │   └── LoginPage.tsx
+    │   ├── services
+    │   │   └── api.ts
+    │   ├── types
+    │   │   └── index.ts
+    │   └── vite-env.d.ts
+    ├── tailwind.config.js
+    ├── tsconfig.app.json
+    ├── tsconfig.json
+    ├── tsconfig.node.json
+    └── vite.config.ts
+
+11 directories, 28 files

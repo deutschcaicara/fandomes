@@ -1,0 +1,11 @@
+{
+  "type": "checkout.session.completed",
+  "data": {
+    "object": {
+      "metadata": {
+        "telefone": "553799999999",
+        "email": "teste@famdomes.com.br"
+      }
+    }
+  }
+}

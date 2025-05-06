@@ -1,0 +1,425 @@
+
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/config.py ###
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MONGO_URI = os.getenv("MONGO_URI")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+OLLAMA_URL = os.getenv("OLLAMA_URL")
+API_KEY = os.getenv("API_KEY")
+WHATSAPP_API_URL = os.getenv("WHATSAPP_API_URL")
+WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
+WHATSAPP_FAMILIAR = os.getenv("WHATSAPP_FAMILIAR")
+WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN")
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/main.py ###
+
+from fastapi import FastAPI
+from app.routes import whatsapp, ia, stripe, agendamento, painel, rocketchat 
+from app.config import API_KEY
+from fastapi import Request, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi import Response
+from app.config import WHATSAPP_VERIFY_TOKEN
+
+API_KEY_HEADER = "X-API-Key"
+app = FastAPI(title="FAMDOMES API")
+
+# Ajuste aqui para respeitar padrão do WhatsApp Cloud
+app.include_router(whatsapp.router, prefix="/chat")
+app.include_router(ia.router, prefix="/ia")
+app.include_router(stripe.router, prefix="/pagamento")
+app.include_router(agendamento.router, prefix="/agenda")
+app.include_router(painel.router, prefix="/paciente")
+app.include_router(rocketchat.router, prefix="/chat")
+
+@app.post("/webhook/teste")
+async def webhook_teste(request: Request):
+    body = await request.json()
+    print("📥 Webhook recebido do Rocket.Chat:")
+    print(body)
+    return JSONResponse(content={"status": "ok", "mensagem": "Webhook recebido com sucesso"})
+
+@app.middleware("http")
+async def autenticar_chave(request: Request, call_next):
+    path = str(request.url.path)
+
+    # Permitir webhooks externos sem autenticação
+    is_webhook_externo = path.startswith("/chat/webhook/whatsapp/") or path.startswith("/chat/webhook/rocketchat/")
+
+    if is_webhook_externo:
+        return await call_next(request)
+
+    chave = request.headers.get("X-API-KEY")
+    if chave != API_KEY:
+        return JSONResponse(status_code=403, content={"erro": "Acesso negado"})
+    
+    return await call_next(request)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/models/atendimento.py ###
+
+from pydantic import BaseModel
+
+class MensagemIA(BaseModel):
+    mensagem: str
+    paciente_id: str
+    canal: str
+
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/models/intents.py ###
+
+INTENTS = {
+    "ver_agendamento": ["consulta", "marcada", "quando", "horário"],
+    "confirmar_pagamento": ["paguei", "comprei", "recebi", "cadê"],
+    "cancelar_atendimento": ["cancelar", "desistir"],
+    "preciso_ajuda": ["socorro", "urgente", "não aguento"],
+    "duvida_geral": ["funciona", "o que é", "como"]
+}
+
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/models/pagamentos.py ###
+
+from pydantic import BaseModel
+
+class PagamentoRequest(BaseModel):
+    produto_id: str
+    email: str
+    telefone: str
+    redirect_url: str
+
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/routes/agendamento.py ###
+
+from fastapi import APIRouter
+
+router = APIRouter()
+
+@router.post("/solicitar")
+async def solicitar_agendamento():
+    # TODO: Chamar n8n para criar evento no Google Calendar
+    return {"status": "agendamento iniciado"}
+
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/routes/ia.py ###
+
+from fastapi import APIRouter
+from app.models.atendimento import MensagemIA
+from app.utils.risco import analisar_risco
+from app.utils.ollama import chamar_ollama
+
+router = APIRouter()
+
+@router.post("/perguntar")
+async def perguntar_ia(mensagem: MensagemIA):
+    resposta = await chamar_ollama(mensagem.mensagem)
+    risco = analisar_risco(resposta)
+    return {
+        "resposta": resposta,
+        "risco_detectado": risco,
+        "paciente_id": mensagem.paciente_id
+    }
+
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/routes/painel.py ###
+
+from fastapi import APIRouter
+from pymongo import MongoClient
+from app.config import MONGO_URI
+
+router = APIRouter()
+
+mongo = MongoClient(MONGO_URI)
+colecao = mongo["famdomes"]["respostas_ia"]
+
+@router.get("/consulta/{token}")
+async def status_consulta(token: str):
+    return {
+        "token": token,
+        "status": "confirmado",
+        "mensagem": "Sua sessão está confirmada com um profissional."
+    }
+
+@router.get("/historico/{telefone}")
+async def historico_respostas(telefone: str):
+    resultados = colecao.find({"telefone": telefone}).sort("criado_em", -1)
+    historico = []
+    for doc in resultados:
+        historico.append({
+            "mensagem": doc.get("mensagem"),
+            "resposta": doc.get("resposta"),
+            "intent": doc.get("intent"),
+            "risco": doc.get("risco"),
+            "criado_em": doc.get("criado_em").isoformat()
+        })
+    return {"historico": historico}
+
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/routes/rocketchat.py ###
+
+from fastapi import APIRouter, Request
+import httpx
+from app.config import WHATSAPP_API_URL, WHATSAPP_TOKEN, MONGO_URI
+from pymongo import MongoClient
+from datetime import datetime
+
+router = APIRouter()
+
+mongo = MongoClient(MONGO_URI)
+acompanhamentos = mongo["famdomes"]["acompanhamentos"]
+
+@router.post("/webhook/rocketchat/")
+async def receber_rocketchat(request: Request):
+    body = await request.json()
+    mensagem = body.get("message", {}).get("msg")
+    telefone = body.get("message", {}).get("metadata", {}).get("phone")
+
+    if not mensagem or not telefone:
+        return {"erro": "mensagem ou telefone ausente"}
+
+    # 1. Marcar como acompanhado, se ainda não tiver sido
+    existente = acompanhamentos.find_one({"telefone": telefone})
+    if not existente:
+        acompanhamentos.insert_one({
+            "telefone": telefone,
+            "mensagem_inicial": mensagem,
+            "assumido_em": datetime.utcnow()
+        })
+
+    # 2. Enviar ao WhatsApp
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": telefone,
+        "type": "text",
+        "text": {
+            "body": mensagem
+        }
+    }
+
+    headers = {
+        "Authorization": f"Bearer {WHATSAPP_TOKEN}"
+    }
+
+    async with httpx.AsyncClient() as client:
+        r = await client.post(WHATSAPP_API_URL, json=payload, headers=headers)
+
+    return {
+        "status": "enviado",
+        "whatsapp_code": r.status_code,
+        "acompanhamento_registrado": not existente
+    }
+
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/routes/stripe.py ###
+
+from fastapi import APIRouter, Request
+from app.models.pagamentos import PagamentoRequest
+import stripe
+from app.config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+import httpx
+
+stripe.api_key = STRIPE_SECRET_KEY
+router = APIRouter()
+
+@router.post("/criar_sessao")
+async def criar_sessao_pagamento(dados: PagamentoRequest):
+    session = stripe.checkout.Session.create(
+        payment_method_types=["card"],
+        line_items=[{
+            "price": dados.produto_id,
+            "quantity": 1,
+        }],
+        mode="payment",
+        success_url=dados.redirect_url,
+        cancel_url=dados.redirect_url,
+        metadata={
+            "telefone": dados.telefone,
+            "email": dados.email
+        }
+    )
+    return {"checkout_url": session.url}
+
+@router.post("/webhook")
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature")
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, STRIPE_WEBHOOK_SECRET
+        )
+    except Exception as e:
+        return {"erro": str(e)}
+
+    if event["type"] == "checkout.session.completed":
+     session = event["data"]["object"]
+     telefone = session["metadata"].get("telefone")
+     email = session["metadata"].get("email")
+
+     dados = {
+        "data": {
+            "nome": "Paciente FAMDOMES",
+            "email": email,
+            "inicio": "2025-04-01T15:00:00-03:00",
+            "fim": "2025-04-01T16:00:00-03:00",
+            "plano": "Avaliação inicial"
+        }
+    }
+
+    try:
+        async with httpx.AsyncClient() as client:
+            await client.post("http://localhost:5678/webhook/fluxo4-in", json=dados)
+    except Exception as e:
+        return {"erro_n8n": str(e)}
+
+    return {"status": "confirmado", "telefone": telefone}
+
+
+    return {"status": "ignorado"}
+
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/routes/whatsapp.py ###
+
+from fastapi import APIRouter, Request, Response
+import httpx
+from datetime import datetime
+from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
+
+from app.utils.ollama import chamar_ollama
+from app.utils.risco import analisar_risco
+from app.config import WHATSAPP_API_URL, WHATSAPP_TOKEN, MONGO_URI, WHATSAPP_FAMILIAR, WHATSAPP_VERIFY_TOKEN
+from app.models.intents import INTENTS
+
+# Inicializações
+load_dotenv()
+mongo = MongoClient(MONGO_URI)
+colecao = mongo["famdomes"]["respostas_ia"]
+acompanhamentos = mongo["famdomes"]["acompanhamentos"]
+router = APIRouter()
+
+# Detectar intent
+
+def detectar_intent(texto: str) -> str:
+    for intent, gatilhos in INTENTS.items():
+        if any(g.lower() in texto.lower() for g in gatilhos):
+            return intent
+    return "desconhecida"
+
+
+# Validação do Webhook
+@router.get("/webhook/whatsapp/")
+async def verificar_webhook(request: Request):
+    args = request.query_params
+    mode = args.get("hub.mode")
+    token = args.get("hub.verify_token")
+    challenge = args.get("hub.challenge")
+
+    if mode == "subscribe" and token == WHATSAPP_VERIFY_TOKEN:
+        return Response(content=challenge, media_type="text/plain")
+    return Response(status_code=403)
+
+
+# Recebimento de mensagem do WhatsApp
+@router.post("/webhook/whatsapp/")
+async def receber_mensagem_whatsapp(request: Request):
+    try:
+        data = await request.json()
+        entry = data["entry"][0]
+        changes = entry["changes"][0]["value"]
+        mensagem = changes["messages"][0]["text"]["body"]
+        telefone = changes["messages"][0]["from"]
+        nome = changes["contacts"][0]["profile"]["name"]
+
+        # 1. Detectar intent
+        intent = detectar_intent(mensagem)
+
+        # 2. IA local
+        resposta = await chamar_ollama(mensagem)
+
+        # 3. Risco
+        risco = analisar_risco(resposta)
+
+        # 4. Mongo
+        colecao.insert_one({
+            "telefone": telefone,
+            "mensagem": mensagem,
+            "resposta": resposta,
+            "intent": intent,
+            "risco": risco,
+            "criado_em": datetime.utcnow()
+        })
+
+        # 5. Rocket.Chat
+        canal = f"lead-{telefone}"
+        rocket_base = "http://144.22.142.138:3000/api/v1"
+        rocket_headers = {
+            "X-Auth-Token": "XUodf0pje4em5R-okPBIww_8df0QrR9GeQ26jbrrA7E",
+            "X-User-Id": "nhgxCi4za4G8zCaAB"
+        }
+
+        async with httpx.AsyncClient() as client:
+            # Verifica canal
+            r_check = await client.get(f"{rocket_base}/channels.info?roomName={canal}", headers=rocket_headers)
+
+            if r_check.status_code != 200:
+                await client.post(f"{rocket_base}/groups.create", json={"name": canal}, headers=rocket_headers)
+                await client.post(f"{rocket_base}/groups.invite", json={
+                    "roomName": canal,
+                    "userId": "nhgxCi4za4G8zCaAB"
+                }, headers=rocket_headers)
+
+            # Envia mensagem
+            rocket_payload = {
+                "channel": canal,
+                "text": f"📨 *Mensagem de {nome}*\n\n💬 {mensagem}\n\n🧠 *Resposta IA:*\n{resposta}\n\n🧠 *Intent:* `{intent}`\n🚨 *Risco:* `{risco}`",
+                "alias": nome or telefone
+            }
+            r_send = await client.post(f"{rocket_base}/chat.postMessage", json=rocket_payload, headers=rocket_headers)
+            print("🚀 Rocket.Chat status:", r_send.status_code)
+            print("📝 Resposta Rocket.Chat:", r_send.text)
+
+            # 6. Alerta familiar
+            acompanhamento_existente = acompanhamentos.find_one({"telefone": telefone})
+            if risco and WHATSAPP_FAMILIAR and not acompanhamento_existente:
+                alerta_payload = {
+                    "messaging_product": "whatsapp",
+                    "to": WHATSAPP_FAMILIAR,
+                    "type": "text",
+                    "text": {
+                        "body": f"⚠️ Alerta FAMDOMES: Detecção de risco na conversa com {telefone}. Um profissional já está sendo alertado."
+                    }
+                }
+                alerta_headers = {
+                    "Authorization": f"Bearer {WHATSAPP_TOKEN}"
+                }
+                await client.post(
+                    WHATSAPP_API_URL,
+                    json=alerta_payload,
+                    headers=alerta_headers
+                )
+
+        return {"status": "ok", "canal": canal}
+
+    except Exception as e:
+        print("❌ ERRO:", str(e))
+        return {"erro": str(e)}
+
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/utils/ollama.py ###
+
+import httpx
+from app.config import OLLAMA_URL
+
+async def chamar_ollama(prompt: str) -> str:
+    async with httpx.AsyncClient() as client:
+        response = await client.post(f"{OLLAMA_URL}/api/generate", json={"prompt": prompt})
+        data = response.json()
+        return data.get("response", "")
+
+### ARQUIVO: /home/ubuntu/famdomes_backend/app/utils/risco.py ###
+
+def analisar_risco(texto: str) -> bool:
+    palavras_criticas = ["suicídio", "morrer", "não aguento", "acabar com tudo"]
+    return any(p in texto.lower() for p in palavras_criticas)

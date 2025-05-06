@@ -1,0 +1,665 @@
+import httpx
+from app.config import OLLAMA_API_URL
+
+async def chamar_ollama(prompt: str) -> str:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(OLLAMA_API_URL + "/api/generate", json={"prompt": prompt})
+            response.raise_for_status()
+            data = response.json()
+            return data.get("response", "")
+    except httpx.HTTPStatusError as e:
+        print(f"Erro na requisição para Ollama: {e}")
+        return "Erro na IA"
+    except Exception as e:
+        print(f"Erro ao chamar Ollama: {e}")
+        return "Erro na IA"
+import httpx
+from app.config import WHATSAPP_API_URL, WHATSAPP_TOKEN
+
+async def enviar_mensagem(telefone: str, mensagem: str) -> dict:
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": telefone,
+        "type": "text",
+        "text": {
+            "body": mensagem
+        }
+    }
+
+    headers = {
+        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    try:
+        async with httpx.AsyncClient() as client:
+            r = await client.post(WHATSAPP_API_URL, json=payload, headers=headers)
+        return {"status": "enviado", "code": r.status_code, "retorno": r.text}
+    except Exception as e:
+        return {"erro": str(e)}
+# utils/db.py
+
+from datetime import datetime, timedelta
+
+# Simula próxima agenda livre
+def get_agenda_disponivel():
+    return datetime.now() + timedelta(days=1, hours=1)
+
+# Simula gravação da consulta
+def registrar_consulta(telefone: str, horario):
+    print(f"[DB] Consulta registrada para {telefone} às {horario}")
+
+# Simula aviso ao profissional
+def avisar_profissional(telefone: str, horario):
+    print(f"[AVISO MÉDICO] Nova consulta agendada com {telefone} para {horario}")
+
+# Simula resposta ao paciente
+def avisar_paciente(telefone: str, horario):
+    print(f"[AVISO PACIENTE] Sua consulta foi agendada para {horario}")
+def analisar_risco(texto: str) -> bool:
+    palavras_criticas = ["suicídio", "morrer", "não aguento", "acabar com tudo"]
+    return any(p in texto.lower() for p in palavras_criticas)
+# utils/agenda.py
+
+from datetime import datetime, timedelta
+from pymongo import MongoClient
+from app.config import MONGO_URI
+
+mongo = MongoClient(MONGO_URI)
+db = mongo["famdomes"]
+consultas = db["consultas_agendadas"]
+
+def agendar_consulta(telefone: str, nome: str, email: str = None):
+    agora = datetime.utcnow()
+    inicio_base = agora + timedelta(minutes=20)
+
+    # Gera horário em blocos de 20 minutos até achar um livre
+    for i in range(500):  # até 500 blocos (~6 dias úteis)
+        tentativa = inicio_base + timedelta(minutes=20 * i)
+
+        conflito = consultas.find_one({"horario": tentativa})
+        if not conflito:
+            consultas.insert_one({
+                "telefone": telefone,
+                "nome": nome,
+                "email": email,
+                "horario": tentativa,
+                "criado_em": datetime.utcnow()
+            })
+            print(f"[AGENDA] Consulta marcada para {nome} ({telefone}) em {tentativa}")
+            return tentativa
+
+    raise Exception("Sem horários disponíveis")
+
+def cancelar_consulta(telefone):
+    consultas.delete_many({"telefone": telefone})
+    print(f"🗑️ Cancelada consulta(s) de {telefone}")
+
+def consultar_horario():
+    agora = datetime.utcnow()
+    inicio_base = agora + timedelta(minutes=20)
+
+    for i in range(500):
+        tentativa = inicio_base + timedelta(minutes=20 * i)
+        if not consultas.find_one({"horario": tentativa}):
+            return tentativa.strftime("%d/%m %H:%M")
+
+    return "Indisponível"
+# utils/followup.py
+
+from datetime import datetime, timedelta
+from pymongo import MongoClient
+from app.config import MONGO_URI
+from app.utils.db import get_agenda_disponivel, registrar_consulta, avisar_profissional, avisar_paciente
+
+# Conexão com Mongo
+mongo = MongoClient(MONGO_URI)
+db = mongo["famdomes"]
+sessoes = db["sessao_atendimentos"]
+consultas = db["consultas_agendadas"]
+
+def iniciar_sessao(telefone: str, nome: str):
+    sessoes.update_one(
+        {"telefone": telefone},
+        {
+            "$set": {
+                "nome": nome,
+                "inicio": datetime.utcnow(),
+                "status": "pendente_pagamento"
+            }
+        },
+        upsert=True
+    )
+    print(f"[SESSÃO] Iniciada com {nome} ({telefone})")
+
+def marcar_pagamento(telefone: str):
+    sessao = sessoes.find_one({"telefone": telefone})
+    if not sessao:
+        print(f"[ERRO] Sessão não encontrada para {telefone}")
+        return
+
+    sessoes.update_one({"telefone": telefone}, {"$set": {"status": "pago"}})
+
+    horario = get_agenda_disponivel()
+
+    consultas.insert_one({
+        "telefone": telefone,
+        "nome": sessao.get("nome", "Paciente"),
+        "horario": horario,
+        "confirmado_em": datetime.utcnow()
+    })
+
+    registrar_consulta(telefone, horario)
+    avisar_profissional(telefone, horario)
+    avisar_paciente(telefone, horario)
+
+def checar_followup():
+    agora = datetime.utcnow()
+    mensagens = []
+
+    for sessao in sessoes.find({"status": "pendente_pagamento"}):
+        tempo = agora - sessao["inicio"]
+        if tempo > timedelta(minutes=10):
+            msg = (
+                f"[FOLLOW-UP] {sessao['nome']} ({sessao['telefone']}) não finalizou o pagamento.\n"
+                "Deseja ajuda para concluir ou tem alguma dúvida? Estou aqui para te apoiar."
+            )
+            mensagens.append(msg)
+
+    return mensagens
+from fastapi import APIRouter, Request
+from app.models.pagamentos import PagamentoRequest
+import stripe
+from app.config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+from app.utils.agenda import agendar_consulta
+from app.utils.mensageria import enviar_mensagem
+
+stripe.api_key = STRIPE_SECRET_KEY
+router = APIRouter()
+
+@router.post("/webhook")
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature")
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
+    except Exception as e:
+        return {"erro": str(e)}
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        telefone = session["metadata"].get("telefone")
+        nome = session["metadata"].get("nome", "Paciente")
+        email = session["metadata"].get("email")
+
+        horario = agendar_consulta(telefone, nome, email)
+
+        msg_paciente = (
+            f"✅ Olá {nome}, seu agendamento está confirmado!\n"
+            f"🕒 Horário: {horario.strftime('%d/%m %H:%M')}\n"
+            "Você será chamado pelo profissional nesse horário. Até lá!"
+        )
+        enviar_mensagem(telefone, msg_paciente)
+
+        msg_medico = f"👨‍⚕️ Novo agendamento: {nome} ({telefone}) às {horario.strftime('%d/%m %H:%M')}."
+        enviar_mensagem("MEDICO", msg_medico)
+
+        return {"status": "confirmado"}
+
+    return {"status": "ignorado"}
+from fastapi import APIRouter
+from pymongo import MongoClient
+from app.config import MONGO_URI
+
+router = APIRouter()
+
+mongo = MongoClient(MONGO_URI)
+colecao = mongo["famdomes"]["respostas_ia"]
+
+@router.get("/consulta/{token}")
+async def status_consulta(token: str):
+    return {
+        "token": token,
+        "status": "confirmado",
+        "mensagem": "Sua sessão está confirmada com um profissional."
+    }
+
+@router.get("/historico/{telefone}")
+async def historico_respostas(telefone: str):
+    resultados = colecao.find({"telefone": telefone}).sort("criado_em", -1)
+    historico = []
+    for doc in resultados:
+        historico.append({
+            "mensagem": doc.get("mensagem"),
+            "resposta": doc.get("resposta"),
+            "intent": doc.get("intent"),
+            "risco": doc.get("risco"),
+            "criado_em": doc.get("criado_em").isoformat()
+        })
+    return {"historico": historico}
+# routes/stripe.py
+
+import stripe
+from fastapi import APIRouter, Request, Header
+from app.config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+from app.utils.followup import marcar_pagamento
+from app.utils.agenda import agendar_consulta
+from app.utils.mensageria import enviar_mensagem
+
+stripe.api_key = STRIPE_SECRET_KEY
+router = APIRouter()
+
+@router.post("/webhook")
+async def stripe_webhook(request: Request, stripe_signature: str = Header(None)):
+    payload = await request.body()
+
+    try:
+        event = stripe.Webhook.construct_event(payload, stripe_signature, STRIPE_WEBHOOK_SECRET)
+    except Exception as e:
+        return {"erro": str(e)}
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        telefone = session["metadata"].get("telefone")
+        nome = session["metadata"].get("nome", "Paciente")
+
+        # 🧠 Marcar como pago (grava no Mongo + agenda + avisa)
+        marcar_pagamento(telefone)
+
+        # 🧠 Agendar consulta e enviar mensagens reais
+        horario = agendar_consulta(telefone, nome, email=None)
+
+        msg_paciente = (
+            f"✅ Olá {nome}, seu agendamento está confirmado!\n"
+            f"🕒 Horário: {horario.strftime('%d/%m %H:%M')}\n"
+            "Você será chamado pelo profissional nesse horário. Até lá!"
+        )
+        await enviar_mensagem(telefone, msg_paciente)
+
+        msg_medico = f"👨‍⚕️ Novo agendamento: {nome} ({telefone}) às {horario.strftime('%d/%m %H:%M')}."
+        await enviar_mensagem("MEDICO", msg_medico)
+
+    return {"status": "ok"}
+from fastapi import APIRouter, Request
+import httpx
+from app.config import WHATSAPP_API_URL, WHATSAPP_TOKEN, MONGO_URI
+from pymongo import MongoClient
+from datetime import datetime
+
+router = APIRouter()
+
+mongo = MongoClient(MONGO_URI)
+acompanhamentos = mongo["famdomes"]["acompanhamentos"]
+
+@router.post("/webhook/rocketchat/")
+async def receber_rocketchat(request: Request):
+    body = await request.json()
+    mensagem = body.get("message", {}).get("msg")
+    telefone = body.get("message", {}).get("metadata", {}).get("phone")
+
+    if not mensagem or not telefone:
+        return {"erro": "mensagem ou telefone ausente"}
+
+    # 1. Marcar como acompanhado, se ainda não tiver sido
+    existente = acompanhamentos.find_one({"telefone": telefone})
+    if not existente:
+        acompanhamentos.insert_one({
+            "telefone": telefone,
+            "mensagem_inicial": mensagem,
+            "assumido_em": datetime.utcnow()
+        })
+
+    # 2. Enviar ao WhatsApp
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": telefone,
+        "type": "text",
+        "text": {
+            "body": mensagem
+        }
+    }
+
+    headers = {
+        "Authorization": f"Bearer {WHATSAPP_TOKEN}"
+    }
+
+    async with httpx.AsyncClient() as client:
+        r = await client.post(WHATSAPP_API_URL, json=payload, headers=headers)
+
+    return {
+        "status": "enviado",
+        "whatsapp_code": r.status_code,
+        "acompanhamento_registrado": not existente
+    }
+# routes/agendamento.py
+
+from fastapi import APIRouter
+from app.utils.agenda import consultar_horario
+
+router = APIRouter()
+
+@router.get("/agendamento/proximo")
+async def proximo_agendamento():
+    horario = consultar_horario()
+    return {"proximo_horario": horario}
+
+from fastapi import APIRouter, Request, Response
+from datetime import datetime
+from app.utils.ollama import chamar_ollama
+from app.utils.risco import analisar_risco
+from app.utils.mensageria import enviar_mensagem
+from app.config import WHATSAPP_FAMILIAR, WHATSAPP_TOKEN
+from pymongo import MongoClient
+
+mongo = MongoClient("mongodb://localhost:27017/")
+colecao = mongo["famdomes"]["respostas_ia"]
+acompanhamentos = mongo["famdomes"]["acompanhamentos"]
+
+router = APIRouter()
+
+def detectar_intent(texto: str) -> str:
+    # Lógica de detecção de intent
+    return "desconhecida"
+
+@router.get("/webhook/whatsapp/")
+async def verificar_webhook(request: Request):
+    args = request.query_params
+    mode = args.get("hub.mode")
+    token = args.get("hub.verify_token")
+    challenge = args.get("hub.challenge")
+
+    if mode == "subscribe" and token == WHATSAPP_VERIFY_TOKEN:
+        return Response(content=challenge, media_type="text/plain")
+    return Response(status_code=403)
+
+@router.post("/webhook/whatsapp/")
+async def receber_mensagem_whatsapp(request: Request):
+    try:
+        data = await request.json()
+        entry = data["entry"][0]
+        changes = entry["changes"][0]["value"]
+        mensagem = changes["messages"][0]["text"]["body"]
+        telefone = changes["messages"][0]["from"]
+        nome = changes["contacts"][0]["profile"]["name"]
+
+        intent = detectar_intent(mensagem)
+        resposta = await chamar_ollama(mensagem)
+        risco = analisar_risco(resposta)
+
+        colecao.insert_one({
+            "telefone": telefone,
+            "mensagem": mensagem,
+            "resposta": resposta,
+            "intent": intent,
+            "risco": risco,
+            "criado_em": datetime.utcnow()
+        })
+
+        # Enviar resposta ao paciente via WhatsApp
+        await enviar_mensagem(telefone, resposta)
+
+        # Alerta de risco para familiar, se houver
+        if risco and WHATSAPP_FAMILIAR:
+            alerta_payload = {
+                "messaging_product": "whatsapp",
+                "to": WHATSAPP_FAMILIAR,
+                "type": "text",
+                "text": {
+                    "body": f"⚠️ Alerta FAMDOMES: Detecção de risco na conversa com {telefone}. Um profissional já está sendo alertado."
+                }
+            }
+            alerta_headers = {
+                "Authorization": f"Bearer {WHATSAPP_TOKEN}"
+            }
+            async with httpx.AsyncClient() as client:
+                await client.post(WHATSAPP_API_URL, json=alerta_payload, headers=alerta_headers)
+
+        return Response(status_code=200)
+    except Exception as e:
+        return {"erro": str(e)}
+# routes/ia_comandos.py
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from app.utils.agenda import agendar_consulta, cancelar_consulta, consultar_horario
+from app.utils.mensageria import enviar_mensagem
+from app.utils.followup import iniciar_sessao
+from app.config import STRIPE_SECRET_KEY
+import stripe
+
+router = APIRouter()
+stripe.api_key = STRIPE_SECRET_KEY
+
+class ComandoIA(BaseModel):
+    telefone: str
+    nome: str
+    comando: str  # Ex: "quero agendar", "ver horário", "cancelar"
+
+@router.post("/ia-comando")
+async def processar_comando(dados: ComandoIA):
+    cmd = dados.comando.lower()
+    
+    if "agendar" in cmd:
+        iniciar_sessao(dados.telefone, dados.nome)
+
+        try:
+            session = stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                line_items=[{
+                    "price_data": {
+                        "currency": "brl",
+                        "product_data": {"name": "Consulta FAMDOMES"},
+                        "unit_amount": 10000  # R$100,00
+                    },
+                    "quantity": 1
+                }],
+                mode="payment",
+                success_url="https://famdomes.com.br/sucesso",
+                cancel_url="https://famdomes.com.br/cancelado",
+                metadata={
+                    "telefone": dados.telefone,
+                    "nome": dados.nome
+                }
+            )
+
+            await enviar_mensagem(dados.telefone, f"✅ Para agendar sua consulta, clique aqui e realize o pagamento:\n{session.url}")
+            return {"status": "link_gerado", "checkout_url": session.url}
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Erro ao criar checkout: {str(e)}")
+
+    elif "cancelar" in cmd:
+        cancelar_consulta(dados.telefone)
+        await enviar_mensagem(dados.telefone, "Sua consulta foi cancelada com sucesso.")
+        return {"status": "consulta_cancelada"}
+
+    elif "horário" in cmd:
+        horario = consultar_horario()
+        await enviar_mensagem(dados.telefone, f"📅 Próximo horário disponível: {horario}")
+        return {"status": "horario_enviado", "horario": horario}
+
+    else:
+        raise HTTPException(status_code=400, detail="Comando não reconhecido.")
+from fastapi import APIRouter, Request
+import httpx
+from app.config import OLLAMA_API_URL, OLLAMA_MODEL
+from app.utils.mensageria import enviar_mensagem
+
+router = APIRouter()
+
+@router.post("/chat/webhook/whatsapp/")
+async def webhook_whatsapp(request: Request):
+    try:
+        # Recebe dados do Webhook do WhatsApp
+        dados = await request.json()
+        mensagem = dados.get("messages")[0].get("text")  # Mensagem do cliente
+        telefone = dados.get("contacts")[0].get("wa_id")  # Número de telefone
+
+        # Retorna 200 imediatamente para o Facebook
+        # Facebook exige que a confirmação seja enviada rapidamente para não interromper o webhook
+        # A resposta é para o Facebook, então retornamos isso imediatamente.
+        # Processamento de IA será feito depois, de forma assíncrona.
+        response = {"status": "ok"}
+
+        # Verifica se a mensagem e o telefone estão presentes
+        if not mensagem or not telefone:
+            return {"erro": "Mensagem ou telefone ausente"}
+
+        # Enviar a mensagem recebida para o modelo de IA
+        payload = {
+            "model": OLLAMA_MODEL,
+            "prompt": mensagem,
+            "stream": False
+        }
+
+        # Realizando a requisição ao modelo Ollama
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response_ia = await client.post(f"{OLLAMA_API_URL}/api/generate", json=payload)
+
+        # Verifica se a resposta foi bem-sucedida
+        if response_ia.status_code != 200:
+            return {
+                "erro": "Erro ao consultar o modelo de IA",
+                "status": response_ia.status_code,
+                "retorno": response_ia.text
+            }
+
+        # Processando resposta de IA
+        try:
+            data = response_ia.json()
+            resposta_ia = data.get("response", "")
+        except ValueError:
+            # Se a resposta não for JSON válido, tentamos como texto simples
+            resposta_ia = response_ia.text.strip()
+
+            # Caso o texto contenha múltiplas linhas, vamos concatenar tudo
+            if '\n' in resposta_ia:
+                resposta_ia = " ".join(resposta_ia.splitlines())
+
+        # Enviar a resposta ao WhatsApp
+        await enviar_mensagem(telefone, f"🤖 {resposta_ia}")
+
+        return response  # Retorna o 200 imediatamente para o Facebook
+
+    except Exception as e:
+        return {"erro": "Erro no webhook do WhatsApp", "detalhe": str(e)}
+# routes/followup.py
+
+from fastapi import APIRouter
+from utils.followup import checar_followup
+
+router = APIRouter()
+
+@router.get("/verificar-followup")
+def verificar():
+    mensagens = checar_followup()
+    return {"mensagens": mensagens}
+from fastapi import FastAPI
+from app.routes import whatsapp, ia, stripe, agendamento, painel
+from fastapi import Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi import Response
+from app.config import WHATSAPP_VERIFY_TOKEN, API_KEY
+from app.routes import ia, ia_comandos, stripe, whatsapp, agendamento, painel
+
+
+
+API_KEY_HEADER = "X-API-Key"
+app = FastAPI(title="FAMDOMES API")
+
+app.include_router(whatsapp.router, prefix="/chat")
+app.include_router(ia.router)
+app.include_router(stripe.router, prefix="/pagamento")
+app.include_router(agendamento.router, prefix="/agenda")
+app.include_router(painel.router, prefix="/paciente")
+app.include_router(ia_comandos.router)
+@app.post("/webhook/teste")
+async def webhook_teste(request: Request):
+    body = await request.json()
+    print("📥 Webhook recebido:")
+    print(body)
+    return JSONResponse(content={"status": "ok", "mensagem": "Webhook recebido com sucesso"})
+
+@app.middleware("http")
+async def autenticar_chave(request: Request, call_next):
+    path = str(request.url.path)
+
+    # Rotas públicas permitidas
+    is_webhook_externo = (
+        path.startswith("/chat/webhook/whatsapp") or 
+        path.startswith("/pagamento/webhook") or
+        path.startswith("/pagamento/criar_sessao") or
+        path.startswith("/agenda") or
+        path.startswith("/ia-in") or
+        path.startswith("/docs") or
+        path.startswith("/openapi.json") or
+        path.startswith("/favicon.ico") or
+        path == "/"
+    )
+
+    if is_webhook_externo:
+        return await call_next(request)
+
+    # Validação da chave
+    chave = request.headers.get("X-API-Key") or request.headers.get("x-api-key")
+    if chave != API_KEY:
+        return JSONResponse(status_code=403, content={"erro": "Acesso negado"})
+
+    return await call_next(request)
+from pydantic import BaseModel
+
+class PagamentoRequest(BaseModel):
+    produto_id: str
+    email: str
+    telefone: str
+    redirect_url: str
+INTENTS = {
+    "ver_agendamento": ["consulta", "marcada", "quando", "horário"],
+    "confirmar_pagamento": ["paguei", "comprei", "recebi", "cadê"],
+    "cancelar_atendimento": ["cancelar", "desistir"],
+    "preciso_ajuda": ["socorro", "urgente", "não aguento"],
+    "duvida_geral": ["funciona", "o que é", "como"]
+}
+from pydantic import BaseModel
+
+class MensagemIA(BaseModel):
+    mensagem: str
+    paciente_id: str
+    canal: str
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MONGO_URI = os.getenv("MONGO_URI")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma3")
+
+API_KEY = os.getenv("API_KEY")
+WHATSAPP_API_URL = os.getenv("WHATSAPP_API_URL")
+WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
+WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN")
+WHATSAPP_FAMILIAR = os.getenv("WHATSAPP_FAMILIAR")
+
+ROCKETCHAT_URL = os.getenv("ROCKETCHAT_URL")
+ROCKETCHAT_TOKEN = os.getenv("ROCKETCHAT_TOKEN")
+ROCKETCHAT_USER_ID = os.getenv("ROCKETCHAT_USER_ID")
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+from utils.followup import checar_followup
+from app.utils.mensageria import enviar_mensagem
+
+mensagens = checar_followup()
+
+for texto in mensagens:
+    print(f"[ENVIAR] {texto}")
+    # Aqui você pode acionar o canal real de mensageria se desejar:
+    # telefone = extrair_telefone(texto)  # ou adaptar o followup para retornar tel
+    # enviar_mensagem(telefone, texto)

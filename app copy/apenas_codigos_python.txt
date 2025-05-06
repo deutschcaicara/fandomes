@@ -1,0 +1,3562 @@
+##################################################
+########## Path: ./utils/faq_respostas.py
+##################################################
+
+# ===========================================================
+# Arquivo: utils/faq_respostas.py
+# (Baseado no arquivo original fornecido, com chaves normalizadas)
+# ===========================================================
+
+# Dicionário com perguntas frequentes e suas respostas.
+# As chaves estão em minúsculas e sem acentos/pontuação para facilitar a busca.
+FAQ_RESPOSTAS = {
+    "dependencia quimica": (
+        "Dependência química é uma doença crônica caracterizada pelo uso compulsivo de substâncias, "
+        "apesar das consequências negativas, afetando o cérebro e o comportamento."
+    ),
+    "identificar dependencia": (
+        "Sinais comuns incluem: aumento da tolerância (precisar de mais para o mesmo efeito), sintomas de abstinência ao parar/diminuir, "
+        "perda de controle sobre o uso, gastar muito tempo obtendo/usando/recuperando-se da substância, "
+        "negligência de responsabilidades e continuar usando apesar dos problemas causados."
+    ),
+    "tipos de internacao": (
+        "Existem três tipos principais de internação previstos em lei:\n"
+        "1.  **Voluntária:** Quando a própria pessoa busca ajuda e concorda com a internação.\n"
+        "2.  **Involuntária:** Solicitada por um familiar ou responsável legal, sem o consentimento da pessoa, mas *obrigatoriamente* com um laudo médico detalhado atestando a necessidade (risco para si ou outros).\n"
+        "3.  **Compulsória:** Determinada pela Justiça, geralmente em casos mais complexos e após avaliação médica."
+    ),
+    "como funciona o tratamento": (
+        "O tratamento em uma clínica geralmente é multidisciplinar e inclui:\n"
+        "-   **Desintoxicação:** Fase inicial para lidar com a abstinência física, com supervisão médica.\n"
+        "-   **Terapias:** Individual e em grupo (como Terapia Cognitivo-Comportamental - TCC, Entrevista Motivacional) para entender as causas, mudar comportamentos e prevenir recaídas.\n"
+        "-   **Acompanhamento Médico e Psiquiátrico:** Para tratar a dependência e possíveis outras condições (comorbidades).\n"
+        "-   **Grupos de Apoio:** Incentivo à participação em grupos como Narcóticos Anônimos (N.A.) ou Alcoólicos Anônimos (A.A.).\n"
+        "-   **Atividades Terapêuticas:** Ocupacionais, físicas, etc., para reestruturação da rotina."
+    ),
+    "duracao do tratamento": (
+        "A duração varia muito. Internações podem durar de 1 a 6 meses, ou até mais, dependendo da gravidade, do tipo de substância e da resposta individual. O tratamento ambulatorial (consultas regulares sem internação) pode ser mais longo. O importante é entender que a recuperação é um processo contínuo, mesmo após a alta."
+    ),
+    "custo do tratamento": (
+        "Os valores de uma internação ou tratamento particular variam bastante dependendo da clínica, estrutura, serviços incluídos, tipo de acomodação e tempo de permanência. Para ter uma proposta adequada ao seu caso, precisamos primeiro entender a situação na consulta inicial de avaliação."
+    ),
+    "o que fazer se a pessoa nao aceita ajuda": (
+        "É um desafio comum e muito difícil para a família. Se a pessoa não reconhece o problema ou recusa ajuda, mas está colocando a si mesma ou outros em risco grave, a internação involuntária pode ser uma opção legal, mas requer um laudo médico detalhado. O primeiro passo é buscar orientação profissional, como na nossa consulta inicial, para avaliar a situação e os caminhos possíveis."
+    ),
+    "como a familia pode ajudar": (
+        "A família é fundamental na recuperação! Algumas formas de ajudar são:\n"
+        "-   Buscar conhecimento sobre dependência química para entender a doença.\n"
+        "-   Oferecer apoio emocional, mas sem facilitar o uso (evitar acobertar, dar dinheiro que possa ser usado para drogas, etc.).\n"
+        "-   Estabelecer limites claros e consistentes.\n"
+        "-   Participar de grupos de apoio para familiares (como Al-Anon, Nar-Anon) e/ou terapia familiar.\n"
+        "-   Incentivar a busca e a manutenção do tratamento pela pessoa."
+    ),
+    "o que e caps": (
+        "CAPS é a sigla para Centro de Atenção Psicossocial. São unidades públicas do SUS que oferecem atendimento em saúde mental. Existem diferentes tipos, como o CAPS AD, especializado em álcool e outras drogas. O tratamento no CAPS é gratuito e geralmente ambulatorial (a pessoa vai ao centro durante o dia), sendo uma alternativa importante, especialmente quando a internação não é necessária ou viável."
+    ),
+    "como agendar consulta": (
+        "Para agendar a consulta inicial online, que tem o valor de R$100, basta me confirmar seu interesse. Se você confirmar, eu te enviarei um link seguro para realizar o pagamento. Após a confirmação do pagamento, o horário será agendado e você receberá todas as instruções."
+    ),
+    "qual o preco da consulta": (
+        "A consulta inicial de avaliação online tem o valor de R$100. Ela é realizada por um profissional especializado para entender em detalhes a situação, oferecer orientações e, se for o caso, indicar o tratamento mais adequado, seja ele ambulatorial ou internação."
+    ),
+    "consulta online funciona": (
+        "Sim, a consulta online é muito eficaz para a avaliação inicial e orientação. Ela permite que um profissional especializado analise o caso com privacidade e comodidade, entenda a necessidade, forneça direcionamento e, se necessário, um laudo para encaminhamento. Caso uma intervenção presencial seja indicada, como uma internação, o profissional fará essa recomendação durante a consulta."
+    )
+    # Adicionar mais FAQs conforme necessário
+}
+
+
+
+########## End Path: ./utils/faq_respostas.py ##########
+
+
+##################################################
+########## Path: ./utils/questionario_pos_pagamento.py
+##################################################
+
+# ===========================================================
+# Arquivo: utils/questionario_pos_pagamento.py
+# ===========================================================
+import asyncio
+# Ajuste o import se mensageria.py estiver em um diretório diferente
+from .mensageria import enviar_mensagem
+import logging
+
+# Configuração básica de logging
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# --- Definição das Perguntas ---
+
+# Perguntas Fatuais (Originais ou Adaptadas)
+PERGUNTAS_FACTUAIS = [
+    "Vamos começar com algumas perguntas rápidas para ajudar nosso médico a entender melhor. Qual o nome completo da pessoa que será avaliada?",
+    "Qual a idade aproximada dela?",
+    "Qual o seu grau de parentesco com essa pessoa (você é filho(a), esposa(o), irmão(ã), amigo(a), ou a própria pessoa)?",
+    "Quais são as principais substâncias que ela está usando atualmente (por exemplo: álcool, cocaína, crack, maconha, medicamentos controlados sem prescrição)?",
+    "Há quanto tempo, aproximadamente, esse uso se tornou um problema ou se intensificou?",
+    "A pessoa já passou por algum tipo de tratamento para dependência química antes? Se sim, qual(is) e quando?",
+    "Além da dependência, existe alguma outra condição de saúde importante, física ou mental (como diabetes, pressão alta, depressão, ansiedade, esquizofrenia), que devemos saber?",
+    "Em qual cidade e estado a pessoa se encontra neste momento?"
+]
+
+# Perguntas Emocionais (Adicionadas para a Trilha Emocional)
+PERGUNTAS_EMOCIONAIS = [
+    "Pensando na situação atual, quais são as maiores preocupações ou medos que você (ou a pessoa a ser avaliada, se não for você) tem enfrentado recentemente?",
+    "Olhando para frente, o que você (ou a pessoa) mais deseja ou espera alcançar ao buscar ajuda ou iniciar um tratamento?",
+    "Em relação aos sentimentos, existe algum que tem sido muito presente ultimamente por causa dessa situação (por exemplo: culpa, vergonha, raiva, medo, frustração, tristeza, mas também esperança ou alívio)?",
+    "De que forma você percebe que essa situação tem impactado o dia a dia, o trabalho/estudos e os relacionamentos familiares?"
+]
+
+# Combina as perguntas na ordem desejada para o questionário completo
+# Pode ajustar a ordem se preferir intercalar fatuais e emocionais
+QUESTIONARIO_COMPLETO_POS_PAGAMENTO = PERGUNTAS_FACTUAIS + PERGUNTAS_EMOCIONAIS
+
+# --- Função para Iniciar o Questionário ---
+
+async def iniciar_questionario_pos_pagamento(telefone: str):
+    """
+    Envia a primeira pergunta do questionário pós-pagamento.
+    A lógica de salvar o questionário no contexto e enviar as perguntas
+    subsequentes é gerenciada por nlp.py.
+    """
+    total_perguntas = len(QUESTIONARIO_COMPLETO_POS_PAGAMENTO)
+    logging.info(f"QUESTIONARIO: 📋 Preparando para iniciar ({total_perguntas} perguntas) para {telefone}")
+
+    # Verifica se a lista de perguntas não está vazia
+    if QUESTIONARIO_COMPLETO_POS_PAGAMENTO:
+        # Pega a primeira pergunta da lista combinada
+        primeira_pergunta = QUESTIONARIO_COMPLETO_POS_PAGAMENTO[0]
+        try:
+            # Envia a primeira pergunta para o usuário
+            await enviar_mensagem(telefone, primeira_pergunta)
+            logging.info(f"QUESTIONARIO: Enviada primeira pergunta para {telefone}.")
+            # A continuação do fluxo (salvar contexto, enviar próximas perguntas)
+            # será tratada em nlp.py quando a resposta do usuário chegar.
+        except Exception as e:
+            logging.error(f"QUESTIONARIO: ❌ Erro ao enviar a primeira pergunta para {telefone}: {e}")
+            # Considerar o que fazer neste caso: tentar novamente? Notificar? Mudar estado?
+    else:
+        # Loga um aviso se a lista de perguntas estiver vazia
+        logging.warning(f"QUESTIONARIO: ⚠️ Nenhuma pergunta definida. Questionário não iniciado para {telefone}.")
+
+
+
+########## End Path: ./utils/questionario_pos_pagamento.py ##########
+
+
+##################################################
+########## Path: ./utils/ollama.py
+##################################################
+
+# ===========================================================
+# Arquivo: utils/ollama.py
+# ===========================================================
+import httpx
+import logging
+import json
+import re
+# Ajuste o import se config.py estiver em um diretório diferente
+from app.config import OLLAMA_API_URL, OLLAMA_MODEL
+
+# Configuração básica de logging
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+async def chamar_ollama(prompt: str, telefone: str) -> tuple[str | None, dict | None, list | None]:
+    """
+    Chama a API do Ollama com o prompt fornecido.
+    Tenta extrair um JSON do final da resposta.
+
+    Args:
+        prompt (str): O prompt completo a ser enviado para a IA.
+        telefone (str): O número de telefone do usuário (para logging).
+
+    Returns:
+        tuple[str | None, dict | None, list | None]:
+            - resposta_textual (str | None): A parte textual da resposta da IA.
+            - json_extraido (dict | None): O dicionário JSON extraído do final, ou None.
+            - tokens (list | None): Informações sobre tokens (se a API retornar, atualmente None).
+    """
+    # Validação inicial
+    if not OLLAMA_API_URL or not OLLAMA_MODEL:
+        logging.error("❌ OLLAMA: Configurações (OLLAMA_API_URL ou OLLAMA_MODEL) ausentes.")
+        return "⚠️ Desculpe, estou com problemas técnicos para acessar minha inteligência. Tente novamente mais tarde.", None, None
+
+    # Payload para a API do Ollama
+    payload = {
+        "model": OLLAMA_MODEL, # Modelo configurado
+        "prompt": prompt,
+        "stream": False, # Não usar streaming para facilitar extração do JSON
+        # "options": {"temperature": 0.7} # Exemplo de opções de geração
+        # Tenta forçar JSON se o prompt explicitamente pedir (pode ser ajustado)
+        "format": "json" if "json" in prompt.lower()[-150:] else None # Verifica só o final do prompt por "json"
+    }
+    # Remove format se for None para não enviar chave vazia
+    if payload["format"] is None:
+        del payload["format"]
+
+    headers = {"Content-Type": "application/json"}
+    resposta_textual = None
+    json_extraido = None
+    tokens = None # Placeholder para informações de tokens
+
+    try:
+        # Usar httpx para chamadas HTTP assíncronas
+        # Timeout aumentado para 45 segundos para dar tempo à IA
+        async with httpx.AsyncClient(timeout=45.0) as client:
+            logging.info(f"OLLAMA: Enviando prompt (modelo: {OLLAMA_MODEL}) para {telefone}...")
+            # Faz a requisição POST para a API do Ollama
+            response = await client.post(f"{OLLAMA_API_URL}/api/generate", json=payload, headers=headers)
+            # Levanta uma exceção para respostas com erro (status 4xx ou 5xx)
+            response.raise_for_status()
+
+            dados = response.json()
+            logging.info(f"OLLAMA: ✅ Resposta recebida da IA para {telefone}.")
+            # logging.debug(f"OLLAMA: Resposta completa: {dados}") # Log detalhado opcional
+
+            # Extrai a resposta principal do JSON retornado pela API
+            resposta_bruta = dados.get("response", "").strip()
+            # TODO: Extrair informações de tokens se disponíveis em 'dados' (ex: dados.get("eval_count"), etc.)
+            # tokens = {"eval_count": dados.get("eval_count"), ...}
+
+            # Verifica se a resposta não está vazia
+            if not resposta_bruta:
+                logging.warning(f"OLLAMA: ⚠️ Resposta vazia para {telefone}.")
+                return None, None, tokens
+
+            # Tenta extrair JSON do final da resposta bruta
+            # Primeiro tenta com ```json ... ``` (com ou sem espaço antes do {)
+            match = re.search(r"```json\s*(\{[\s\S]*?\})\s*```$", resposta_bruta, re.IGNORECASE | re.DOTALL)
+            if not match: # Se não encontrar, tenta apenas com { ... } no final
+                 match = re.search(r"(\{[\s\S]*?\})$", resposta_bruta, re.DOTALL)
+
+            if match:
+                # Se encontrou um padrão JSON, extrai o conteúdo
+                json_str = match.group(1)
+                try:
+                    # Tenta converter a string JSON em um dicionário Python
+                    json_extraido = json.loads(json_str)
+                    # Remove a parte JSON (e os ``` se presentes) da resposta textual
+                    resposta_textual = resposta_bruta[:match.start()].strip()
+                    logging.info(f"OLLAMA: JSON extraído com sucesso para {telefone}.")
+                except json.JSONDecodeError as json_err:
+                    # Se o JSON for inválido, loga um aviso e trata a resposta inteira como texto
+                    logging.warning(f"OLLAMA: ⚠️ JSON inválido no final da resposta para {telefone}: {json_err}. Retornando resposta bruta como textual.")
+                    resposta_textual = resposta_bruta
+                    json_extraido = None
+            else:
+                # Se não encontrou JSON no final, toda a resposta é considerada textual
+                logging.info(f"OLLAMA: Nenhum JSON encontrado no final da resposta para {telefone}.")
+                resposta_textual = resposta_bruta
+                json_extraido = None
+
+            # Garante que a resposta textual não seja vazia se o JSON foi extraído com sucesso
+            if not resposta_textual and json_extraido is not None:
+                 resposta_textual = "Ok." # Retorna um texto mínimo
+
+            return resposta_textual, json_extraido, tokens
+
+    # Tratamento de exceções específicas do httpx e genéricas
+    except httpx.TimeoutException as e:
+        logging.error(f"OLLAMA: ❌ Erro: Timeout ao chamar para {telefone} ({str(e)})")
+        # Retorna uma mensagem de erro amigável para o usuário
+        return "⚠️ Desculpe, demorei muito para pensar. Poderia tentar de novo?", None, None
+    except httpx.HTTPStatusError as e:
+        # Loga o erro HTTP e retorna mensagem de erro
+        logging.error(f"OLLAMA: ❌ Erro HTTP {e.response.status_code} para {telefone}: {e.response.text}")
+        return f"⚠️ Ocorreu um erro de comunicação com a inteligência artificial ({e.response.status_code}). Por favor, tente mais tarde.", None, None
+    except Exception as e:
+        # Loga qualquer outro erro inesperado
+        logging.exception(f"OLLAMA: ❌ Erro desconhecido ao chamar para {telefone}:")
+        return "⚠️ Ocorreu um erro inesperado ao processar sua solicitação. Tente novamente mais tarde.", None, None
+
+
+
+########## End Path: ./utils/ollama.py ##########
+
+
+##################################################
+########## Path: ./utils/prompt_builder.py
+##################################################
+
+import os
+from datetime import datetime
+import logging
+from pymongo import MongoClient
+from app.config import MONGO_URI
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+mongo = MongoClient(MONGO_URI)
+db = mongo["famdomes"]
+colecao_historico = db["respostas_ia"]
+
+# Ajuste o caminho conforme sua estrutura – certifique-se de que o arquivo existe ou use o fallback
+CAMINHO_PROMPT_TXT = os.path.join(os.path.dirname(__file__), "..", "PROMPT_MESTRE_FAMDOMES_CORRIGIDO.txt")
+
+def carregar_prompt_mestre() -> str:
+    try:
+        with open(CAMINHO_PROMPT_TXT, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    except Exception as e:
+        logging.error(f"❌ ERRO ao carregar prompt mestre: {e}")
+        return (
+            "Você é um assistente virtual especializado em saúde mental e dependência química. "
+            "Responda com empatia, clareza e objetividade, seguindo as diretrizes de atendimento."
+        )
+
+def construir_prompt(telefone: str, pergunta_atual: str) -> str:
+    prompt_mestre = carregar_prompt_mestre()
+    trecho_historico = ""
+    historico_recente = []
+    if colecao_historico is not None:
+        try:
+            historico_recente = list(
+                colecao_historico.find({"telefone": telefone}).sort("criado_em", -1).limit(10)
+            )
+            historico_recente.reverse()
+            pares_formatados = []
+            mensagem_usuario_pendente = None
+            for item in historico_recente:
+                if 'mensagem' in item:
+                    mensagem_usuario_pendente = item['mensagem']
+                elif 'resposta' in item and mensagem_usuario_pendente:
+                    pares_formatados.append(f"Usuário: {mensagem_usuario_pendente}\nAssistente: {item['resposta']}")
+                    mensagem_usuario_pendente = None
+            trecho_historico = "\n".join(pares_formatados)
+            if not trecho_historico:
+                trecho_historico = "Nenhuma conversa anterior registrada."
+        except Exception as e:
+            logging.error(f"❌ ERRO ao buscar histórico para {telefone}: {e}")
+            trecho_historico = "Erro ao carregar histórico."
+    else:
+        trecho_historico = "Histórico indisponível (sem conexão DB)."
+    
+    agora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    prompt_final = f"""{prompt_mestre}
+
+---
+Contexto Atual:
+Data/Hora: {agora}
+Telefone: {telefone}
+---
+Histórico da Conversa:
+{trecho_historico}
+---
+Nova Mensagem do Usuário:
+{pergunta_atual.strip()}
+---
+Instruções para sua Resposta:
+1. Responda com empatia, clareza e objetividade.
+2. Se apropriado, sugira o agendamento.
+3. Use no máximo 400 caracteres.
+---
+Assistente:"""
+    logging.info(f"Prompt construído para {telefone}. Tamanho: {len(prompt_final)} caracteres.")
+    return prompt_final
+
+
+########## End Path: ./utils/prompt_builder.py ##########
+
+
+##################################################
+########## Path: ./utils/mensageria.py
+##################################################
+
+# ===========================================================
+# Arquivo: utils/mensageria.py
+# Envio robusto de mensagens via WhatsApp Cloud API
+# ===========================================================
+from __future__ import annotations
+
+import httpx
+import logging
+from typing import Any, Dict
+from app.config import WHATSAPP_API_URL, WHATSAPP_TOKEN
+
+logger = logging.getLogger("famdomes.mensageria")
+
+HEADERS = {
+    "Authorization": f"Bearer {WHATSAPP_TOKEN}",
+    "Content-Type": "application/json",
+}
+TIMEOUT = httpx.Timeout(timeout=20.0, connect=5.0)
+
+
+async def enviar_mensagem(telefone: str, mensagem: str) -> Dict[str, Any]:
+    if not WHATSAPP_API_URL or not WHATSAPP_TOKEN:
+        logger.error("❌ MENSAGERIA: API URL ou Token não configurados.")
+        return {"status": "erro_config", "erro": "WhatsApp API não configurada"}
+
+    if not telefone or not mensagem:
+        logger.warning("⚠️ MENSAGERIA: Telefone ou mensagem vazios.")
+        return {"status": "erro_input", "erro": "Telefone ou mensagem ausente"}
+
+    payload: Dict[str, Any] = {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": telefone,
+        "type": "text",
+        "text": {"preview_url": False, "body": mensagem},
+    }
+
+    try:
+        url = str(WHATSAPP_API_URL)  # 🔧 cast definitivo
+        async with httpx.AsyncClient(timeout=TIMEOUT) as client:
+            resp = await client.post(url, json=payload, headers=HEADERS)
+            resp.raise_for_status()
+
+        logger.info("✅ Mensagem enviada a %s (HTTP %s)", telefone, resp.status_code)
+        return {"status": "enviado", "code": resp.status_code, "retorno": resp.json()}
+
+    except httpx.HTTPStatusError as exc:
+        logger.error("❌ WHATSAPP %s – %s", exc.response.status_code, exc.response.text)
+        return {"status": "erro_api", "code": exc.response.status_code, "erro": exc.response.text}
+    except httpx.TimeoutException as exc:
+        logger.error("⏰ Timeout WhatsApp: %s", exc)
+        return {"status": "erro_timeout", "erro": str(exc)}
+    except httpx.RequestError as exc:
+        logger.error("🌐 Erro de conexão WhatsApp: %s", exc)
+        return {"status": "erro_conexao", "erro": str(exc)}
+    except Exception as exc:  # pragma: no cover
+        logger.exception("💥 Erro inesperado WhatsApp: %s", exc)
+        return {"status": "erro_desconhecido", "erro": str(exc)}
+
+
+########## End Path: ./utils/mensageria.py ##########
+
+
+##################################################
+########## Path: ./utils/contexto.py
+##################################################
+
+# ===========================================================
+# Arquivo: utils/contexto.py
+# Persiste contexto de conversa + histórico da IA no MongoDB
+# ===========================================================
+from __future__ import annotations
+
+import logging
+from datetime import datetime, timezone
+from pymongo import MongoClient, ASCENDING
+from app.config import MONGO_URI
+
+logger = logging.getLogger("famdomes.contexto")
+
+# ----------------------------------------------------------------------
+# Conexão e índices
+mongo = MongoClient(MONGO_URI)
+db = mongo["famdomes"]
+contextos_db = db["contextos"]          # estado por telefone
+respostas_ia_db = db["respostas_ia"]    # log IA
+
+try:
+    contextos_db.create_index("tel", unique=True, background=True)
+    respostas_ia_db.create_index("telefone", background=True)
+    respostas_ia_db.create_index([("criado_em", ASCENDING)], background=True)
+except Exception:
+    pass  # índices já existem
+
+# ----------------------------------------------------------------------
+def salvar_contexto(
+    telefone: str,
+    texto: str | None = None,
+    novo_estado: str | None = None,
+    meta_conversa: dict | None = None,
+    trilha_cursor: dict | None = None,
+    ultimo_texto_bot: str | None = None,
+) -> None:
+    """
+    Atualiza (ou cria) o documento de contexto do telefone.
+    Campos são opcionais; somente os passados são alterados.
+    """
+    set_fields: dict = {"ts": datetime.now(timezone.utc)}
+
+    if texto is not None:
+        set_fields["ultimo_texto"] = texto
+    if novo_estado is not None:
+        set_fields["estado"] = novo_estado
+    if meta_conversa is not None:
+        set_fields["meta_conversa"] = meta_conversa
+    if trilha_cursor is not None:
+        set_fields["trilha_cursor"] = trilha_cursor
+    if ultimo_texto_bot is not None:
+        set_fields["ultimo_texto_bot"] = ultimo_texto_bot
+
+    contextos_db.update_one(
+        {"tel": telefone},
+        {"$set": set_fields, "$inc": {"interacoes": 1}},
+        upsert=True,
+    )
+    logger.debug("Contexto salvo %s – %s", telefone, novo_estado or "(estado inalterado)")
+
+# ----------------------------------------------------------------------
+def obter_contexto(telefone: str) -> dict:
+    """
+    Recupera o contexto atual. Garante chaves mínimas.
+    """
+    doc = contextos_db.find_one({"tel": telefone}, {"_id": 0}) or {}
+    doc.setdefault("estado", "INICIAL")
+    doc.setdefault("meta_conversa", {})
+    return doc
+
+# ----------------------------------------------------------------------
+def salvar_resposta_ia(
+    telefone: str,
+    canal: str,
+    mensagem_usuario: str,
+    resposta_gerada: str,
+    intent: str,
+    entidades: dict,
+    risco: bool,
+    sentimento: str | None = None,
+) -> None:
+    """
+    Grava no histórico cada interação envolvendo IA.
+    """
+    try:
+        respostas_ia_db.insert_one(
+            {
+                "telefone": telefone,
+                "canal": canal,
+                "mensagem_usuario": mensagem_usuario,
+                "resposta_gerada": resposta_gerada,
+                "intent": intent,
+                "entidades": entidades or {},
+                "risco": bool(risco),
+                "sentimento_detectado": sentimento,
+                "criado_em": datetime.utcnow(),
+            }
+        )
+    except Exception as exc:
+        logger.exception("Falha ao salvar resposta IA para %s: %s", telefone, exc)
+
+# ----------------------------------------------------------------------
+def limpar_contexto(telefone: str) -> bool:
+    """
+    Remove contexto e histórico IA de um telefone.
+    Retorna True se algo foi apagado.
+    """
+    ctx_del = contextos_db.delete_one({"tel": telefone}).deleted_count
+    hist_del = respostas_ia_db.delete_many({"telefone": telefone}).deleted_count
+    return bool(ctx_del or hist_del)
+
+
+########## End Path: ./utils/contexto.py ##########
+
+
+##################################################
+########## Path: ./utils/offnlp.py
+##################################################
+
+# ===========================================================
+# Arquivo: utils/nlp.py
+# (v7 - Implementada a nova estratégia de fluxo inicial)
+# ===========================================================
+import logging
+import json
+import re
+import os # Importado para carregar prompt
+from datetime import datetime
+
+# Ajuste os imports conforme a estrutura do seu projeto
+from app.utils.ollama import chamar_ollama
+# Acesso direto às variáveis globais de contexto.py para DB
+from app.utils.contexto import (
+    obter_contexto, salvar_contexto, salvar_resposta_ia,
+    respostas_ia_db # Acesso à coleção do histórico
+)
+from app.utils.faq_respostas import FAQ_RESPOSTAS
+from app.utils.risco import analisar_risco
+from app.routes.ia import processar_comando # Para ações como agendar
+from app.config import (
+    WHATSAPP_FAMILIAR, BASE_DIR, # Importa o número para notificação e diretório base
+    ROCKETCHAT_URL, ROCKETCHAT_TOKEN, ROCKETCHAT_USER_ID, # Configs para RocketChat
+    OLLAMA_API_URL # Necessário para checar se Ollama está configurado
+)
+from app.utils.mensageria import enviar_mensagem # Para enviar notificações
+from app.utils.questionario_pos_pagamento import QUESTIONARIO_COMPLETO_POS_PAGAMENTO # Importa a lista correta
+import httpx # Para notificação RocketChat
+
+# Configuração básica de logging
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# --- Constantes e Textos Padrão ---
+# MENSAGEM_INICIAL = '''🧠 Olá! Eu sou a Domo, da FAMDOMES. Estou aqui para escutar e ajudar. Como posso te auxiliar hoje?''' # Nova versão da estratégia
+MENSAGEM_INICIAL = '''🧠 Olá! Eu sou a Domo, da FAMDOMES. Estou aqui para escutar e ajudar. Como posso te auxiliar hoje?''' # Mantendo a original por enquanto, ajustar se necessário
+# Mensagem combinada (Validação + Emocional + Qualificação) - A validação será adicionada dinamicamente
+PERGUNTA_COMBINADA_TEMPLATE = "Como você está se sentindo com toda essa situação neste momento? E só para eu direcionar melhor, a ajuda que você busca é para você mesmo ou para outra pessoa (ex: filho, esposa, irmão)?"
+RESPOSTA_EXPLICACAO_CONSULTA = '''👨‍⚕️ A consulta médica do FAMDOMES é online, com um profissional que entende profundamente casos de dependência química e sofrimento familiar.
+
+📌 Ela serve para avaliar a situação, oferecer um laudo se necessário, orientar o melhor caminho e — se for o caso — encaminhar para uma clínica parceira com segurança e sigilo.
+
+💳 O valor é R$100 e pode ser pago online de forma rápida.
+
+Posso te enviar o link para agendar agora?'''
+MENSAGEM_AGRADECIMENTO_ONBOARDING = "Obrigado por compartilhar essas informações, elas são muito importantes para a consulta."
+MENSAGEM_ERRO_PADRAO = "🤖 Desculpe, não consegui processar sua mensagem agora. Poderia tentar novamente ou reformular?"
+MENSAGEM_ERRO_IA = "🤖 Oi! Houve um erro aqui ao pensar. Tenta de novo por favor?"
+MENSAGEM_RISCO_DIRECIONAMENTO = "Percebi que você pode estar passando por um momento muito difícil. Se precisar de ajuda urgente, ligue para o CVV (188) ou SAMU (192). Não hesite em buscar apoio."
+MENSAGEM_PEDIDO_HUMANO_CONFIRMACAO = "Entendido. Já notifiquei nossa equipe. Alguém entrará em contato com você por aqui assim que possível."
+
+RESPOSTAS_AFIRMATIVAS = ["sim", "claro", "quero", "vamos", "ok", "pode ser", "tá bom", "aceito", "sim por favor", "sim quero", "com certeza", "tô dentro", "pode sim", "por favor", "gostaria", "desejo"]
+RESPOSTAS_NEGATIVAS = ["não", "nao", "agora não", "talvez depois", "ainda não", "obrigado não", "não quero", "nao quero"]
+PALAVRAS_CHAVE_HUMANO = ["humano", "atendente", "pessoa", "falar com alguem", "alguém", "falar com um especialista", "falar com vc", "falar contigo"]
+# ----------------------------------
+
+# --- Funções Auxiliares Implementadas ---
+
+async def analisar_sentimento(texto: str, telefone: str) -> str | None:
+    """
+    [Trilha Emocional] Analisa o sentimento do texto usando Ollama.
+    Retorna 'positivo', 'negativo', 'neutro' ou None em caso de erro.
+    """
+    if not OLLAMA_API_URL:
+        logging.warning("NLP: Análise de sentimento pulada - OLLAMA_API_URL não configurado.")
+        return "neutro"
+
+    logging.info(f"NLP: [Trilha Emocional] Analisando sentimento para {telefone}: '{texto[:30]}...'")
+    prompt_sentimento = f"""
+    Analise o sentimento predominante na seguinte mensagem do usuário.
+    Responda APENAS com uma das seguintes palavras: 'positivo', 'negativo', 'neutro'.
+
+    Mensagem: "{texto}"
+
+    Sentimento:"""
+    try:
+        resposta_txt, _, _ = await chamar_ollama(prompt_sentimento, telefone)
+        if resposta_txt:
+            sentimento_retornado = resposta_txt.strip().lower().replace(".", "")
+            if sentimento_retornado in ["positivo", "negativo", "neutro"]:
+                logging.info(f"NLP: Sentimento detectado pela IA para {telefone}: {sentimento_retornado}")
+                return sentimento_retornado
+            else:
+                logging.warning(f"NLP: Sentimento retornado pela IA não reconhecido ('{sentimento_retornado}'). Usando 'neutro'.")
+                return "neutro"
+        else:
+            logging.warning(f"NLP: IA não retornou resposta para análise de sentimento de {telefone}. Usando 'neutro'.")
+            return "neutro"
+    except Exception as e:
+        logging.error(f"NLP: Erro ao chamar IA para análise de sentimento de {telefone}: {e}")
+        return None
+
+async def buscar_historico_formatado(telefone: str, limite: int = 5) -> str:
+     """ Busca e formata o histórico recente do MongoDB para o prompt da IA. """
+     if respostas_ia_db is None:
+         logging.warning(f"NLP: Histórico indisponível para {telefone} (DB não conectado).")
+         return "Histórico indisponível (DB não conectado)."
+     logging.debug(f"NLP: Buscando histórico para {telefone} (limite: {limite})")
+     try:
+         historico_cursor = respostas_ia_db.find(
+             {"telefone": telefone},
+             {"mensagem_usuario": 1, "resposta_gerada": 1, "_id": 0}
+         ).sort("criado_em", -1).limit(limite)
+         historico_lista = list(historico_cursor)
+         historico_lista.reverse()
+         if not historico_lista:
+             return "Nenhuma conversa anterior registrada."
+         historico_formatado = ""
+         for item in historico_lista:
+             if msg_usr := item.get("mensagem_usuario"):
+                 historico_formatado += f"Usuário: {msg_usr}\n"
+             if msg_bot := item.get("resposta_gerada"):
+                 if len(msg_bot) > 150:
+                      msg_bot = msg_bot[:150] + "..."
+                 historico_formatado += f"Assistente: {msg_bot}\n"
+         return historico_formatado.strip()
+     except Exception as e:
+         logging.error(f"NLP: Erro ao buscar histórico para {telefone}: {e}")
+         return "Erro ao carregar histórico."
+
+async def construir_prompt_para_ia(telefone: str, pergunta_atual: str, estado: str, meta_conversa: dict) -> str:
+     """
+     Constrói o prompt para o Ollama, incorporando estado, histórico e contexto emocional.
+     Carrega o prompt mestre do arquivo PROMPT_MESTRE.txt.
+     """
+     historico_recente_formatado = await buscar_historico_formatado(telefone)
+     sentimento_anterior = meta_conversa.get("ultimo_sentimento_detectado", None)
+     prompt_mestre_path = os.path.join(BASE_DIR, "PROMPT_MESTRE.txt")
+     try:
+         with open(prompt_mestre_path, "r", encoding="utf-8") as f:
+             PROMPT_MESTRE = f.read().strip()
+     except Exception as e:
+         logging.error(f"NLP: Erro ao carregar prompt mestre de {prompt_mestre_path}: {e}. Usando prompt padrão.")
+         PROMPT_MESTRE = """Você é Domo, um assistente virtual empático da FAMDOMES. Responda com clareza e empatia."""
+
+     meta_filtrada = {
+         k: v for k, v in meta_conversa.items()
+         if k not in ['questionario_completo', 'historico_recente_formatado'] and not k.startswith('sentimento_q')
+     }
+
+     prompt_final = f"""{PROMPT_MESTRE}
+
+     ---
+     Contexto da Conversa Atual:
+     Telefone: {telefone}
+     Estado da Conversa: {estado}
+     Sentimento Percebido na Última Interação: {sentimento_anterior or 'N/A'}
+     Dados Conhecidos (meta_conversa): {json.dumps(meta_filtrada, indent=2, ensure_ascii=False, default=str)}
+     ---
+     Histórico Recente da Conversa:
+     {historico_recente_formatado}
+     ---
+     Nova Mensagem do Usuário:
+     {pergunta_atual.strip()}
+     ---
+     Instruções para sua Resposta OBRIGATÓRIAS:
+     1. Analise a 'Nova Mensagem do Usuário' considerando o 'Contexto da Conversa Atual'.
+     2. Responda em português brasileiro, de forma EMPÁTICA e ACOLHEDORA, especialmente se o sentimento detectado for negativo.
+     3. Mantenha o foco nos serviços da FAMDOMES (consulta, tratamento de dependência química).
+     4. Siga o fluxo indicado pelo 'Estado da Conversa'. Se for 'SUPORTE_FAQ', responda a dúvida. Se for 'AGUARDANDO_RESPOSTA_QUALIFICACAO', processe a resposta e siga para explicar a consulta ou responder dúvidas. Se for outro estado, guie o usuário para o próximo passo lógico.
+     5. Use no máximo 400 caracteres na sua resposta textual.
+     6. AO FINAL DA SUA RESPOSTA DE TEXTO, inclua OBRIGATORIAMENTE um JSON VÁLIDO contendo:
+        - "intent": A intenção principal que você identificou na mensagem do usuário (ex: "duvida_preco", "confirmou_agendamento", "relato_sentimento", "pergunta_tratamento", "resposta_qualificacao", "desconhecida").
+        - "sentimento_detectado": O sentimento predominante na mensagem do usuário (ex: "positivo", "negativo", "neutro", "ansioso", "esperançoso", "frustrado", "confuso").
+        - "entidades": Um dicionário com quaisquer entidades relevantes extraídas (ex: {{"nome_paciente": "Carlos", "substancia": "álcool", "para_quem": "filho"}}). Se não houver, use {{}}.
+     Exemplo de JSON OBRIGATÓRIO no final:
+     ```json
+     {{"intent": "duvida_preco", "sentimento_detectado": "ansioso", "entidades": {{}} }}
+     ```
+     Outro Exemplo:
+     ```json
+     {{"intent": "resposta_qualificacao", "sentimento_detectado": "negativo", "entidades": {{"para_quem": "filho"}} }}
+     ```
+     ---
+     Assistente (responda aqui e adicione o JSON obrigatório no final):"""
+     logging.info(f"NLP: Prompt construído para {telefone} (Estado: {estado}). Tamanho: {len(prompt_final)} chars.")
+     return prompt_final
+
+async def notificar_risco(telefone: str, mensagem: str, analise: dict):
+    """ Envia notificação de risco para o número configurado. """
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    alerta = f"⚠️ ALERTA DE RISCO ({timestamp}) ⚠️\n\nTelefone: {telefone}\nMensagem: \"{mensagem}\"\nAnálise: {analise}\n\nRevisão humana URGENTE necessária."
+    logging.warning(f"NLP: Enviando alerta de risco para {WHATSAPP_FAMILIAR}...")
+    if WHATSAPP_FAMILIAR:
+        try:
+            resultado_envio = await enviar_mensagem(WHATSAPP_FAMILIAR, alerta)
+            if resultado_envio.get("status") == "enviado" or resultado_envio.get("code") == 200:
+                 logging.info(f"NLP: ✅ Alerta de risco enviado com sucesso para {WHATSAPP_FAMILIAR}.")
+            else:
+                 logging.error(f"NLP: ❌ Falha ao enviar alerta de risco para {WHATSAPP_FAMILIAR}: {resultado_envio.get('erro', resultado_envio)}")
+        except Exception as e:
+            logging.error(f"NLP: ❌ Exceção ao tentar enviar alerta de risco: {e}")
+    else:
+        logging.warning("NLP: WHATSAPP_FAMILIAR não configurado. Não foi possível enviar alerta de risco.")
+
+async def notificar_escalacao_humana(telefone: str, contexto: dict):
+    """ Envia notificação para a equipe sobre pedido de atendente humano via RocketChat. """
+    if not ROCKETCHAT_URL or not ROCKETCHAT_TOKEN or not ROCKETCHAT_USER_ID:
+        logging.error("NLP: ❌ Configurações do RocketChat incompletas. Não é possível notificar a equipe.")
+        return
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    estado_anterior = contexto.get("estado", "N/A")
+    nome_contato = contexto.get("meta_conversa", {}).get("nome_paciente", contexto.get("nome", "Desconhecido"))
+    respostas_recentes = {k: v for k, v in contexto.get('meta_conversa', {}).items() if k.startswith('resposta_q')}
+    contexto_resumido = json.dumps(respostas_recentes, indent=2, ensure_ascii=False, default=str)
+    if len(contexto_resumido) > 1000:
+        contexto_resumido = contexto_resumido[:1000] + "\n... (truncado)"
+
+    mensagem_notificacao = (
+        f"🙋 **Pedido de Atendimento Humano** ({timestamp}) 🙋\n\n"
+        f"**Telefone:** {telefone}\n"
+        f"**Nome Contato:** {nome_contato}\n"
+        f"**Estado Anterior:** {estado_anterior}\n\n"
+        f"**Últimas Respostas (Questionário/Meta):**\n"
+        f"```json\n{contexto_resumido}\n```\n\n"
+        f"Por favor, assumir a conversa."
+    )
+    logging.warning(f"NLP: 🙋 PEDIDO HUMANO ({timestamp}) - Telefone: {telefone} | Notificando equipe via RocketChat...")
+
+    headers = {
+        "X-Auth-Token": ROCKETCHAT_TOKEN,
+        "X-User-Id": ROCKETCHAT_USER_ID,
+        "Content-Type": "application/json"
+    }
+    room_id_destino = os.getenv("ROCKETCHAT_ROOM_ID_SUPORTE", "GENERAL")
+    payload = {"message": {"rid": room_id_destino, "msg": mensagem_notificacao}}
+    post_message_url = f"{ROCKETCHAT_URL}/api/v1/chat.postMessage"
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.post(post_message_url, headers=headers, json=payload)
+            response.raise_for_status()
+            resposta_api = response.json()
+            if resposta_api.get("success"):
+                logging.info(f"NLP: ✅ Notificação de escalação enviada com sucesso para RocketChat (Sala: {room_id_destino}).")
+            else:
+                logging.error(f"NLP: ❌ Falha ao enviar notificação para RocketChat (Sala: {room_id_destino}). Resposta API: {resposta_api}")
+    except httpx.HTTPStatusError as e:
+        logging.error(f"NLP: ❌ Erro HTTP {e.response.status_code} ao enviar para RocketChat: {e.response.text}")
+    except httpx.RequestError as e:
+        logging.error(f"NLP: ❌ Erro de conexão ao enviar para RocketChat: {e}")
+    except Exception as e:
+        logging.exception("NLP: ❌ Erro inesperado ao enviar notificação para RocketChat:")
+
+
+# --- Função Principal de Processamento ---
+
+async def processar_mensagem(mensagem: str, telefone: str, canal: str) -> dict:
+    """
+    Processa a mensagem do usuário com base no estado atual da conversa,
+    realiza análise de sentimento/risco, atualiza o estado e retorna a resposta.
+    """
+    global meta_conversa
+    logging.info(f"NLP: 🔄 Processando mensagem de {telefone}...")
+    contexto = obter_contexto(telefone)
+    estado_atual = contexto.get("estado", "INICIAL")
+    meta_conversa = contexto.get("meta_conversa", {})
+    texto_mensagem = mensagem.strip()
+    texto_lower = texto_mensagem.lower()
+
+    if not isinstance(meta_conversa, dict):
+        logging.warning(f"NLP: Meta conversa para {telefone} não era um dicionário. Resetando para {{}}.")
+        meta_conversa = {}
+
+    logging.info(f"NLP: 📞 Telefone: {telefone} | Estado Atual: {estado_atual} | Mensagem: '{texto_mensagem[:50]}...'")
+
+    # --- 1. Análise de Risco ---
+    analise_risco_resultado = analisar_risco(texto_mensagem)
+    risco_detectado = analise_risco_resultado.get("risco_vida") or analise_risco_resultado.get("urgencia_medica")
+
+    if risco_detectado:
+        logging.warning(f"NLP: 🚨 RISCO DETECTADO para {telefone}! Análise: {analise_risco_resultado}")
+        novo_estado = "RISCO_DETECTADO"
+        resposta_final = MENSAGEM_RISCO_DIRECIONAMENTO
+        meta_conversa["ultimo_risco"] = datetime.utcnow().isoformat()
+        salvar_contexto(telefone, {"estado": novo_estado, "meta_conversa": meta_conversa})
+        salvar_resposta_ia(telefone, canal, texto_mensagem, resposta_final, "risco_detectado", meta_conversa, True, None)
+        await notificar_risco(telefone, texto_mensagem, analise_risco_resultado)
+        return {"resposta": resposta_final, "estado": novo_estado}
+
+    # --- 2. Verificação de Comandos Especiais ---
+    if texto_lower == "melancia vermelha":
+        logging.info(f"NLP: Comando 'melancia vermelha' recebido de {telefone}. Resetando contexto.")
+        limpar_contexto(telefone)
+        resposta_final = MENSAGEM_INICIAL # Envia apenas a saudação inicial após reset
+        novo_estado = "IDENTIFICANDO_NECESSIDADE" # Espera a primeira resposta do usuário
+        intent = "reset_comando_e_inicio"
+        meta_conversa = {}
+        salvar_contexto(telefone, {"estado": novo_estado, "meta_conversa": {}})
+        salvar_resposta_ia(telefone, canal, texto_mensagem, resposta_final, intent, {}, False, None)
+        return {"resposta": resposta_final, "estado": novo_estado}
+
+    if any(palavra in texto_lower for palavra in PALAVRAS_CHAVE_HUMANO):
+         logging.info(f"NLP: Pedido de atendente humano detectado para {telefone}.")
+         estado_antes_pedido = estado_atual
+         novo_estado = "AGUARDANDO_ATENDENTE"
+         resposta_final = MENSAGEM_PEDIDO_HUMANO_CONFIRMACAO
+         contexto_para_notificacao = contexto.copy()
+         contexto_para_notificacao["estado"] = estado_antes_pedido
+         salvar_contexto(telefone, {"estado": novo_estado, "meta_conversa": meta_conversa})
+         salvar_resposta_ia(telefone, canal, texto_mensagem, resposta_final, "pedido_humano", meta_conversa, False, None)
+         await notificar_escalacao_humana(telefone, contexto_para_notificacao)
+         return {"resposta": resposta_final, "estado": novo_estado}
+
+    # --- 3. Lógica Baseada no Estado Atual ---
+    resposta_final = MENSAGEM_ERRO_PADRAO
+    novo_estado = estado_atual
+    intent = "desconhecida"
+    entidades = {}
+    sentimento = await analisar_sentimento(texto_mensagem, telefone)
+    if meta_conversa is not None:
+        meta_conversa["ultimo_sentimento_detectado"] = sentimento
+    else:
+        meta_conversa = {"ultimo_sentimento_detectado": sentimento}
+
+    try:
+        # Lógica para estado INICIAL (Bot acabou de enviar a saudação)
+        # Não deveria receber mensagem do usuário neste estado, mas por segurança:
+        if estado_atual == "INICIAL":
+            logging.warning(f"NLP: Mensagem recebida no estado INICIAL de {telefone}. Tratando como IDENTIFICANDO_NECESSIDADE.")
+            estado_atual = "IDENTIFICANDO_NECESSIDADE" # Força a transição
+
+        # Lógica para IDENTIFICANDO_NECESSIDADE (Usuário respondeu à saudação inicial)
+        if estado_atual == "IDENTIFICANDO_NECESSIDADE":
+            # Validação simples (pode ser melhorada com IA se necessário)
+            validacao = "Entendi. " # Validação genérica inicial
+            if sentimento == "negativo":
+                validacao = "Sinto muito que esteja se sentindo assim. "
+            elif sentimento == "positivo":
+                 validacao = "Que bom ouvir isso. "
+
+            # Constrói a pergunta combinada
+            resposta_final = validacao + PERGUNTA_COMBINADA_TEMPLATE
+            novo_estado = "AGUARDANDO_RESPOSTA_QUALIFICACAO"
+            intent = "primeira_resposta_usuario" # Intent da mensagem recebida (pode ser refinado)
+
+        # Lógica para AGUARDANDO_RESPOSTA_QUALIFICACAO (Usuário respondeu à pergunta combinada)
+        elif estado_atual == "AGUARDANDO_RESPOSTA_QUALIFICACAO":
+            logging.info(f"NLP: Processando resposta de qualificação de {telefone}.")
+            meta_conversa["sentimento_resposta_qualificacao"] = sentimento
+            # Tenta extrair para quem é a ajuda usando IA ou regras simples
+            # Exemplo com regras simples (melhorar com IA/extração de entidades no prompt)
+            para_quem = "desconhecido"
+            if "filho" in texto_lower or "filha" in texto_lower:
+                para_quem = "filho(a)"
+            elif "esposo" in texto_lower or "marido" in texto_lower:
+                para_quem = "esposo"
+            elif "esposa" in texto_lower or "mulher" in texto_lower:
+                 para_quem = "esposa"
+            elif "irmão" in texto_lower or "irma" in texto_lower:
+                 para_quem = "irmao(a)"
+            elif "amigo" in texto_lower or "amiga" in texto_lower:
+                 para_quem = "amigo(a)"
+            elif "para mim" in texto_lower or "eu mesmo" in texto_lower or "pra mim" in texto_lower:
+                 para_quem = "proprio_usuario"
+            meta_conversa["para_quem"] = para_quem
+            entidades["para_quem"] = para_quem # Salva entidade específica desta interação
+
+            # Validação da resposta emocional
+            agradecimento = "Obrigado por compartilhar." if sentimento != "negativo" else "Agradeço a confiança em compartilhar."
+
+            # Decide o próximo passo
+            # Se perguntou preço especificamente, responde primeiro
+            if "preço" in texto_lower or "valor" in texto_lower or "custo" in texto_lower:
+                 resposta_final = f"{agradecimento} A consulta inicial online tem o valor de R$100. Ela é importante para avaliar o caso e definir o melhor caminho. Gostaria que eu explicasse mais sobre como ela funciona?"
+                 novo_estado = "SUPORTE_FAQ" # Fica em suporte após responder preço
+                 intent = "resposta_qualificacao_com_preco"
+            else:
+                 # Se não pediu preço, explica a consulta
+                 if para_quem != "desconhecido" and para_quem != "proprio_usuario":
+                      resposta_final = f"{agradecimento} Entendi que a busca é para {para_quem}. Para esses casos, o primeiro passo recomendado é a nossa consulta inicial online.\n\n" + RESPOSTA_EXPLICACAO_CONSULTA
+                 else: # Se for para o próprio usuário ou desconhecido
+                      resposta_final = f"{agradecimento} Sabendo que a ajuda é para você (ou se ainda não tiver certeza, a consulta ajuda a definir), o caminho inicial que oferecemos é a consulta de avaliação online.\n\n" + RESPOSTA_EXPLICACAO_CONSULTA
+                 novo_estado = "EXPLICANDO_CONSULTA"
+                 intent = "resposta_qualificacao_segue_fluxo"
+
+
+        # Lógica para EXPLICANDO_CONSULTA (Usuário respondeu à explicação da consulta)
+        elif estado_atual == "EXPLICANDO_CONSULTA":
+             if texto_lower in RESPOSTAS_AFIRMATIVAS:
+                 logging.info(f"NLP: Usuário {telefone} confirmou interesse em agendar.")
+                 meta_conversa["sentimento_confirmacao_agendamento"] = sentimento
+                 try:
+                     nome_cliente = contexto.get("nome", meta_conversa.get("nome_paciente", "Cliente"))
+                     resultado_comando = await processar_comando({
+                         "telefone": telefone,
+                         "nome": nome_cliente,
+                         "comando": "quero agendar"
+                     })
+                     resposta_final = resultado_comando.get("mensagem", "Link para pagamento enviado!")
+                     if resultado_comando.get("status") == "link_gerado":
+                          novo_estado = "AGUARDANDO_PAGAMENTO"
+                          intent = "confirmou_agendamento"
+                     else:
+                          resposta_final = resultado_comando.get("mensagem", MENSAGEM_ERRO_PADRAO)
+                          novo_estado = "EXPLICANDO_CONSULTA"
+                          intent = "erro_gerar_link"
+                 except Exception as e:
+                     logging.error(f"NLP: Erro ao processar comando 'quero agendar' para {telefone}: {e}")
+                     resposta_final = MENSAGEM_ERRO_PADRAO
+                     novo_estado = "EXPLICANDO_CONSULTA"
+                     intent = "erro_processar_comando"
+
+             elif texto_lower in RESPOSTAS_NEGATIVAS:
+                 logging.info(f"NLP: Usuário {telefone} recusou o agendamento por enquanto.")
+                 meta_conversa["sentimento_recusa_agendamento"] = sentimento
+                 resposta_final = "Entendido. Sem problemas. Se mudar de ideia ou tiver mais alguma dúvida, estou à disposição!"
+                 novo_estado = "SUPORTE_FAQ"
+                 intent = "recusou_agendamento"
+             else:
+                 logging.info(f"NLP: Resposta não conclusiva em EXPLICANDO_CONSULTA para {telefone}. Usando IA.")
+                 novo_estado = "SUPORTE_FAQ"
+                 # IA será chamada no fallback
+
+        # Lógica para AGUARDANDO_PAGAMENTO
+        elif estado_atual == "AGUARDANDO_PAGAMENTO":
+             logging.info(f"NLP: Mensagem recebida de {telefone} enquanto aguarda pagamento. Encaminhando para IA.")
+             resposta_final = "Recebi sua mensagem enquanto aguardo a confirmação do pagamento. Se tiver alguma dúvida sobre o processo ou outra questão, pode perguntar."
+             novo_estado = "SUPORTE_FAQ"
+             # IA será chamada no fallback
+
+        # Lógica para CONFIRMANDO_AGENDAMENTO
+        elif estado_atual == "CONFIRMANDO_AGENDAMENTO":
+             logging.info(f"NLP: Iniciando questionário pós-pagamento para {telefone}")
+             meta_conversa["questionario_completo"] = QUESTIONARIO_COMPLETO_POS_PAGAMENTO
+             meta_conversa["num_pergunta_atual"] = 0
+             if QUESTIONARIO_COMPLETO_POS_PAGAMENTO:
+                 proxima_pergunta = QUESTIONARIO_COMPLETO_POS_PAGAMENTO[0]
+                 resposta_final = proxima_pergunta
+                 novo_estado = "COLETANDO_RESPOSTA_QUESTIONARIO"
+                 intent = "iniciou_questionario"
+                 salvar_contexto(telefone, {
+                     "estado": novo_estado,
+                     "meta_conversa": meta_conversa,
+                     "ultima_resposta_bot": resposta_final
+                 })
+                 salvar_resposta_ia(telefone, canal, "Sistema: Iniciou Questionário", resposta_final, intent, meta_conversa, False, None)
+                 return {"resposta": resposta_final, "estado": novo_estado}
+             else:
+                 logging.warning(f"NLP: Questionário pós-pagamento vazio para {telefone}. Finalizando onboarding.")
+                 resposta_final = MENSAGEM_AGRADECIMENTO_ONBOARDING
+                 novo_estado = "FINALIZANDO_ONBOARDING"
+                 intent = "questionario_vazio"
+
+
+        # Lógica para COLETANDO_RESPOSTA_QUESTIONARIO
+        elif estado_atual == "COLETANDO_RESPOSTA_QUESTIONARIO":
+             num_pergunta_respondida_idx = meta_conversa.get("num_pergunta_atual", 0)
+             perguntas_questionario = meta_conversa.get("questionario_completo", [])
+
+             if not isinstance(perguntas_questionario, list):
+                 logging.error(f"NLP: Erro: 'questionario_completo' não é uma lista no contexto de {telefone}")
+                 perguntas_questionario = []
+
+             if num_pergunta_respondida_idx < len(perguntas_questionario):
+                 pergunta_respondida_texto = perguntas_questionario[num_pergunta_respondida_idx]
+                 chave_resposta = f"resposta_q{num_pergunta_respondida_idx+1}"
+                 chave_sentimento = f"sentimento_q{num_pergunta_respondida_idx+1}"
+                 meta_conversa[chave_resposta] = texto_mensagem
+                 meta_conversa[chave_sentimento] = sentimento
+                 logging.info(f"NLP: Resposta Q{num_pergunta_respondida_idx+1} ('{pergunta_respondida_texto[:30]}...') salva para {telefone}. Sentimento: {sentimento}")
+
+                 num_proxima_pergunta_idx = num_pergunta_respondida_idx + 1
+                 meta_conversa["num_pergunta_atual"] = num_proxima_pergunta_idx
+
+                 if num_proxima_pergunta_idx < len(perguntas_questionario):
+                     proxima_pergunta_texto = perguntas_questionario[num_proxima_pergunta_idx]
+                     resposta_final = proxima_pergunta_texto
+                     novo_estado = "COLETANDO_RESPOSTA_QUESTIONARIO"
+                     intent = f"respondeu_questionario_{num_pergunta_respondida_idx+1}"
+                 else:
+                     resposta_final = MENSAGEM_AGRADECIMENTO_ONBOARDING
+                     novo_estado = "FINALIZANDO_ONBOARDING"
+                     intent = "finalizou_questionario"
+                     meta_conversa.pop("num_pergunta_atual", None)
+                     meta_conversa.pop("questionario_completo", None)
+                     logging.info(f"NLP: Questionário finalizado para {telefone}.")
+             else:
+                 logging.error(f"NLP: Erro de lógica no questionário para {telefone}. Estado: {estado_atual}, Contador: {num_pergunta_respondida_idx}, Total Perguntas: {len(perguntas_questionario)}")
+                 resposta_final = MENSAGEM_ERRO_PADRAO
+                 novo_estado = "SUPORTE_FAQ"
+                 intent = "erro_logica_questionario"
+
+
+        # --- 4. Fallback com IA ---
+        if novo_estado == estado_atual and estado_atual not in ["RISCO_DETECTADO", "AGUARDANDO_ATENDENTE", "FINALIZANDO_ONBOARDING", "CONFIRMANDO_AGENDAMENTO"]:
+            logging.info(f"NLP: Nenhuma regra específica tratou a mensagem de {telefone} no estado {estado_atual}. Usando IA como fallback.")
+
+            faq_key_norm = texto_lower.replace("?", "").replace(".", "").replace("!", "").strip()
+            matched_faq_key = None
+            if faq_key_norm in FAQ_RESPOSTAS:
+                matched_faq_key = faq_key_norm
+            else:
+                for key in FAQ_RESPOSTAS:
+                    if key in faq_key_norm:
+                        matched_faq_key = key
+                        break
+
+            if matched_faq_key:
+                 logging.info(f"NLP: Respondendo com FAQ para chave: {matched_faq_key}")
+                 resposta_final = FAQ_RESPOSTAS[matched_faq_key]
+                 novo_estado = "SUPORTE_FAQ"
+                 intent = f"faq_{matched_faq_key.replace(' ', '_')}"
+            else:
+                 if not OLLAMA_API_URL:
+                     logging.error("NLP: ❌ Fallback para IA falhou - OLLAMA_API_URL não configurado.")
+                     resposta_final = MENSAGEM_ERRO_PADRAO
+                     intent = "erro_config_ia"
+                     novo_estado = "SUPORTE_FAQ"
+                 else:
+                     logging.info(f"NLP: Chamando Ollama para {telefone}...")
+                     prompt = await construir_prompt_para_ia(telefone, texto_mensagem, estado_atual, meta_conversa)
+                     resposta_textual_ia, json_extraido_ia, tokens_ollama = await chamar_ollama(prompt, telefone)
+
+                     if resposta_textual_ia is None or "⚠️" in resposta_textual_ia:
+                         resposta_final = resposta_textual_ia or MENSAGEM_ERRO_IA
+                         intent = "erro_ia_fallback"
+                         novo_estado = "SUPORTE_FAQ"
+                     else:
+                         resposta_final = resposta_textual_ia
+
+                         if json_extraido_ia and isinstance(json_extraido_ia, dict):
+                             logging.info(f"NLP: JSON extraído da IA: {json_extraido_ia}")
+                             intent = json_extraido_ia.get("intent", "ia_generica")
+                             entidades_ia = json_extraido_ia.get("entidades", {})
+                             if isinstance(entidades_ia, dict):
+                                  meta_conversa = atualizar_meta_conversa(meta_conversa, entidades_ia)
+                                  entidades = entidades_ia
+                             else:
+                                  logging.warning(f"NLP: Entidades retornadas pela IA não são um dicionário: {entidades_ia}")
+
+                             sentimento_ia = json_extraido_ia.get("sentimento_detectado")
+                             if sentimento_ia and isinstance(sentimento_ia, str):
+                                  sentimento = sentimento_ia
+                                  meta_conversa["ultimo_sentimento_detectado"] = sentimento
+                             else:
+                                  logging.warning(f"NLP: Sentimento retornado pela IA inválido ou ausente: {sentimento_ia}. Usando sentimento analisado anteriormente: {sentimento}")
+                         else:
+                              logging.warning("NLP: ⚠️ IA não retornou JSON reconhecível no final da resposta.")
+                              intent = "ia_generica_sem_json"
+
+                         novo_estado = "SUPORTE_FAQ"
+
+    except Exception as e:
+        logging.exception(f"NLP: ❌ ERRO INESPERADO durante processamento da mensagem para {telefone}:")
+        resposta_final = MENSAGEM_ERRO_PADRAO
+        intent = "erro_processamento_geral"
+        novo_estado = estado_atual
+
+    # --- 5. Atualizar Contexto e Salvar Histórico ---
+    meta_conversa_final = meta_conversa if isinstance(meta_conversa, dict) else {}
+    contexto_para_salvar = {
+        "estado": novo_estado,
+        "ultima_resposta_bot": resposta_final,
+        "meta_conversa": meta_conversa_final
+    }
+
+    salvar_contexto(telefone, contexto_para_salvar)
+    salvar_resposta_ia(telefone, canal, texto_mensagem, resposta_final, intent, entidades, risco_detectado, sentimento)
+
+    logging.info(f"NLP: ✅ Processamento concluído para {telefone}. Novo estado: {novo_estado}. Resposta: '{resposta_final[:50]}...'")
+    return {"resposta": resposta_final, "estado": novo_estado}
+
+
+
+########## End Path: ./utils/offnlp.py ##########
+
+
+##################################################
+########## Path: ./utils/risco.py
+##################################################
+
+# ===========================================================
+# Arquivo: utils/risco.py
+# ===========================================================
+import logging
+
+# Configuração básica de logging
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# --- Listas de Palavras-Chave para Detecção de Risco ---
+
+# Lista de palavras/frases críticas indicando risco de vida (suicídio, automutilação)
+# ATENÇÃO: Esta lista é um ponto de partida e deve ser refinada com cuidado.
+PALAVRAS_CRITICAS_VIDA = [
+    "suicídio", "me matar", "quero morrer", "não aguento mais", "acabar com tudo",
+    "sumir", "desaparecer", "sem esperança", "adeus mundo", "não quero viver",
+    "me cortar", "me machucar", "automutilação", "tirar minha vida", "fim da linha",
+    "não vejo saída", "desistir de tudo"
+]
+
+# Lista de palavras/frases que indicam URGÊNCIA MÉDICA (Overdose, sintomas graves)
+PALAVRAS_URGENCIA_MEDICA = [
+    "overdose", "passando muito mal", "não consigo respirar", "dor no peito forte",
+    "desmaiado", "convulsão", "sangrando muito", "veneno", "infarto", "avc",
+    "muita dor", "sem ar", "falta de ar", "alucinação grave", "delírio intenso",
+    "tomou muito remédio", "ingeriu substância"
+]
+
+# --- Função de Análise de Risco ---
+
+def analisar_risco(texto: str) -> dict:
+    """
+    Analisa o texto em busca de indicadores de risco (risco de vida, urgência médica).
+    Retorna um dicionário com booleanos para 'risco_vida' e 'urgencia_medica'.
+
+    Args:
+        texto (str): O texto da mensagem do usuário a ser analisada.
+
+    Returns:
+        dict: Dicionário contendo:
+            - 'risco_vida' (bool): True se detectar palavras críticas de risco de vida.
+            - 'urgencia_medica' (bool): True se detectar palavras de urgência médica.
+    """
+    # Retorna False para ambos se o texto for vazio ou nulo
+    if not texto:
+        return {"risco_vida": False, "urgencia_medica": False}
+
+    # Converte o texto para minúsculas para comparação case-insensitive
+    texto_lower = texto.lower()
+
+    # Verifica se alguma palavra/frase da lista de risco de vida está presente no texto
+    # Usar busca de substring para pegar variações (ex: "quero me matar agora")
+    risco_vida_detectado = any(palavra in texto_lower for palavra in PALAVRAS_CRITICAS_VIDA)
+
+    # Verifica se alguma palavra/frase da lista de urgência médica está presente no texto
+    urgencia_medica_detectada = any(palavra in texto_lower for palavra in PALAVRAS_URGENCIA_MEDICA)
+
+    # Loga um aviso se algum risco for detectado (o log principal será feito em nlp.py)
+    # if risco_vida_detectado:
+    #     logging.debug(f"RISCO: Risco de vida potencialmente detectado em '{texto[:50]}...'")
+    # if urgencia_medica_detectada:
+    #     logging.debug(f"RISCO: Urgência médica potencialmente detectada em '{texto[:50]}...'")
+
+    # Retorna o dicionário com os resultados da análise
+    return {
+        "risco_vida": risco_vida_detectado,
+        "urgencia_medica": urgencia_medica_detectada
+    }
+
+
+########## End Path: ./utils/risco.py ##########
+
+
+##################################################
+########## Path: ./utils/agenda.py
+##################################################
+
+# ===========================================================
+# Arquivo: utils/agenda.py
+# (Implementação das funções de agendamento com DB)
+# ===========================================================
+from datetime import datetime, timedelta, timezone
+from pymongo import MongoClient, ReturnDocument
+from pymongo.errors import ConnectionFailure, DuplicateKeyError
+# Ajuste o import se config.py estiver em um diretório diferente
+from app.config import MONGO_URI
+import logging
+import pytz # Para lidar com fusos horários corretamente
+
+# Configuração básica de logging
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# --- Constantes de Configuração da Agenda ---
+DURACAO_CONSULTA_MINUTOS = 20 # Duração de cada bloco de consulta
+MAX_TENTATIVAS_AGENDAMENTO = 500 # Limite de blocos a procurar (~6 dias úteis)
+HORARIO_OPERACAO_INICIO = 9 # Horário de início das consultas (9:00)
+HORARIO_OPERACAO_FIM = 18  # Horário de fim (não agenda às 18:00, último bloco começa antes)
+DIAS_UTEIS = [0, 1, 2, 3, 4] # 0=Segunda, 1=Terça, ..., 4=Sexta
+FUSO_HORARIO_LOCAL = 'America/Sao_Paulo' # Fuso horário de operação
+
+# --- Conexão com MongoDB ---
+mongo_agenda = None
+db_agenda = None
+consultas_db = None
+
+try:
+    # Estabelece conexão com MongoDB
+    if MONGO_URI:
+        mongo_agenda = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        mongo_agenda.server_info() # Testa a conexão
+        db_agenda = mongo_agenda["famdomes"] # Nome do banco de dados
+        consultas_db = db_agenda["consultas_agendadas"] # Coleção para agendamentos
+        # Cria índice único para garantir que não haja duas consultas no mesmo horário (UTC)
+        consultas_db.create_index("horario_utc", unique=True)
+        consultas_db.create_index("telefone") # Índice para busca por telefone
+        consultas_db.create_index([("status", 1), ("horario_utc", 1)]) # Índice composto
+        logging.info("AGENDA: Conexão com MongoDB estabelecida e índices verificados/criados.")
+    else:
+        logging.error("AGENDA: ❌ MONGO_URI não definido. Não foi possível conectar ao MongoDB.")
+except ConnectionFailure as e:
+     logging.error(f"AGENDA: ❌ Falha na conexão com MongoDB: {e}")
+except Exception as e:
+    logging.error(f"AGENDA: ❌ ERRO ao conectar com MongoDB ou criar índices: {e}")
+    mongo_agenda = None
+    db_agenda = None
+    consultas_db = None
+
+# --- Funções Auxiliares ---
+
+def _proximo_horario_util(inicio_base_utc: datetime) -> datetime:
+    """
+    Avança o horário UTC para o próximo bloco de X minutos disponível
+    dentro do horário de operação e dias úteis definidos.
+    """
+    horario_utc = inicio_base_utc.replace(tzinfo=timezone.utc) # Garante que está ciente do fuso UTC
+    tz_local = pytz.timezone(FUSO_HORARIO_LOCAL)
+
+    while True:
+        # Arredonda para o início do próximo bloco de N minutos (para cima)
+        minutos_atuais = horario_utc.minute
+        minutos_para_proximo_bloco = (DURACAO_CONSULTA_MINUTOS - (minutos_atuais % DURACAO_CONSULTA_MINUTOS)) % DURACAO_CONSULTA_MINUTOS
+        if minutos_para_proximo_bloco == 0 and (horario_utc.second > 0 or horario_utc.microsecond > 0):
+            # Se já está no início do bloco mas tem segundos, avança um bloco inteiro
+             horario_utc += timedelta(minutes=DURACAO_CONSULTA_MINUTOS)
+        elif minutos_para_proximo_bloco > 0 :
+            # Avança para o início do próximo bloco
+            horario_utc += timedelta(minutes=minutos_para_proximo_bloco)
+
+        # Zera segundos e microssegundos
+        horario_utc = horario_utc.replace(second=0, microsecond=0)
+
+        # Converte para o fuso local para verificar horário de operação e dia da semana
+        horario_local = horario_utc.astimezone(tz_local)
+
+        # Verifica se está dentro do horário de operação
+        if horario_local.hour < HORARIO_OPERACAO_INICIO:
+            # Se for antes do início, ajusta para o início do dia no fuso local e converte de volta para UTC
+            horario_local = horario_local.replace(hour=HORARIO_OPERACAO_INICIO, minute=0)
+            horario_utc = horario_local.astimezone(timezone.utc)
+            continue # Reavalia o novo horário
+
+        if horario_local.hour >= HORARIO_OPERACAO_FIM:
+            # Se for depois do fim, avança para o dia seguinte e ajusta para o início
+            horario_local += timedelta(days=1)
+            horario_local = horario_local.replace(hour=HORARIO_OPERACAO_INICIO, minute=0)
+            horario_utc = horario_local.astimezone(timezone.utc)
+            continue # Reavalia o novo horário
+
+        # Verifica se é dia útil (no fuso local)
+        if horario_local.weekday() not in DIAS_UTEIS:
+            # Se não for dia útil, avança para o próximo dia e ajusta para o início
+            # Loop para garantir que caia em um dia útil
+            while horario_local.weekday() not in DIAS_UTEIS:
+                 horario_local += timedelta(days=1)
+            horario_local = horario_local.replace(hour=HORARIO_OPERACAO_INICIO, minute=0)
+            horario_utc = horario_local.astimezone(timezone.utc)
+            continue # Reavalia o novo horário
+
+        # Se passou por todas as verificações, o horário é válido
+        return horario_utc
+
+def formatar_horario_local(horario_utc: datetime | None, fuso_destino: str = FUSO_HORARIO_LOCAL) -> str:
+    """Formata um horário UTC para uma string legível no fuso horário local."""
+    if not horario_utc or not isinstance(horario_utc, datetime):
+        return "Indisponível"
+    try:
+        # Garante que o datetime de entrada está ciente do fuso (UTC)
+        if horario_utc.tzinfo is None:
+            horario_utc = pytz.utc.localize(horario_utc)
+
+        tz_destino = pytz.timezone(fuso_destino)
+        horario_local = horario_utc.astimezone(tz_destino)
+        # Formato: DD/MM/AAAA HH:MM (ex: 05/08/2025 14:30)
+        return horario_local.strftime("%d/%m/%Y %H:%M")
+    except ImportError:
+        logging.warning("AGENDA: Biblioteca pytz não instalada. Usando formatação UTC.")
+        return horario_utc.strftime("%d/%m/%Y %H:%M (UTC)") # Fallback para UTC
+    except Exception as e:
+        logging.error(f"AGENDA: Erro ao formatar horário {horario_utc} para fuso {fuso_destino}: {e}")
+        return "Erro na formatação"
+
+# --- Funções Principais da Agenda ---
+
+def agendar_consulta(telefone: str, nome: str, email: str | None = None) -> datetime | None:
+    """
+    Encontra o próximo horário livre e tenta agendar a consulta.
+    Retorna o datetime UTC do horário agendado ou None se não conseguir.
+    """
+    if consultas_db is None:
+        logging.error("AGENDA: ❌ Não é possível agendar: Sem conexão com DB.")
+        return None
+
+    # Usar UTC para armazenamento e lógica interna
+    agora_utc = datetime.now(timezone.utc)
+    # Começa a procurar X minutos à frente para dar tempo de processamento/pagamento
+    inicio_procura_utc = agora_utc + timedelta(minutes=DURACAO_CONSULTA_MINUTOS)
+
+    for i in range(MAX_TENTATIVAS_AGENDAMENTO):
+        # Encontra o próximo bloco de horário válido (dia útil, horário de operação)
+        horario_tentativa_utc = _proximo_horario_util(inicio_procura_utc)
+
+        # Tenta inserir o agendamento no horário encontrado
+        consulta_doc = {
+            "telefone": telefone,
+            "nome": nome,
+            "email": email,
+            "horario_utc": horario_tentativa_utc, # Armazena em UTC
+            "status": "agendado", # Status inicial
+            "criado_em": agora_utc
+        }
+        try:
+            # Tenta inserir o documento. Se o horário já estiver ocupado,
+            # o índice único ("horario_utc") causará um DuplicateKeyError.
+            result = consultas_db.insert_one(consulta_doc)
+            if result.inserted_id:
+                horario_formatado = formatar_horario_local(horario_tentativa_utc)
+                logging.info(f"AGENDA: ✅ Consulta marcada para {nome} ({telefone}) em {horario_formatado} ({horario_tentativa_utc.isoformat()} UTC)")
+                return horario_tentativa_utc # Retorna o horário em UTC
+            else:
+                # Caso improvável de falha na inserção sem exceção
+                logging.error(f"AGENDA: ❌ Falha desconhecida ao inserir agendamento para {horario_tentativa_utc}.")
+                return None
+
+        except DuplicateKeyError:
+            # Horário ocupado, avança a procura para depois deste bloco
+            logging.debug(f"AGENDA: Horário {horario_tentativa_utc.isoformat()} UTC ocupado. Tentando próximo.")
+            inicio_procura_utc = horario_tentativa_utc + timedelta(minutes=1) # Avança 1 min para recalcular próximo bloco
+            continue # Tenta o próximo horário
+
+        except Exception as e:
+            # Outro erro durante a inserção
+            logging.error(f"AGENDA: ❌ ERRO ao tentar inserir agendamento para {horario_tentativa_utc}: {e}")
+            return None # Falha no agendamento
+
+    # Se o loop terminar sem encontrar horário
+    logging.warning(f"AGENDA: ⚠️ Não foram encontrados horários disponíveis para {telefone} ({nome}) após {MAX_TENTATIVAS_AGENDAMENTO} tentativas.")
+    return None
+
+def cancelar_consulta(telefone: str) -> int:
+    """
+    Cancela todas as consultas futuras com status 'agendado' para um telefone.
+    Retorna o número de consultas canceladas.
+    """
+    if consultas_db is None:
+        logging.error("AGENDA: ❌ Não é possível cancelar: Sem conexão com DB.")
+        return 0
+
+    agora_utc = datetime.now(timezone.utc)
+    try:
+        # Filtro para encontrar consultas futuras e agendadas do telefone
+        filtro = {
+            "telefone": telefone,
+            "horario_utc": {"$gt": agora_utc}, # Apenas horários futuros
+            "status": "agendado" # Apenas consultas que ainda estão agendadas
+        }
+        # Atualiza o status para 'cancelado_usuario' em vez de deletar (mantém histórico)
+        resultado = consultas_db.update_many(
+            filtro,
+            {"$set": {"status": "cancelado_usuario", "cancelado_em": agora_utc}}
+        )
+
+        canceladas = resultado.modified_count
+        if canceladas > 0:
+            logging.info(f"AGENDA: 🗑️ Cancelada(s) {canceladas} consulta(s) futura(s) de {telefone}")
+        else:
+            logging.info(f"AGENDA: Nenhuma consulta futura encontrada para cancelar para {telefone}")
+        return canceladas
+    except Exception as e:
+        logging.error(f"AGENDA: ❌ ERRO ao cancelar consulta(s) para {telefone}: {e}")
+        return 0
+
+def consultar_proximo_horario_disponivel() -> datetime | None:
+    """
+    Consulta o próximo horário disponível sem agendar.
+    Retorna o datetime UTC do horário ou None se não encontrar/erro.
+    """
+    if consultas_db is None:
+        logging.error("AGENDA: ❌ Não é possível consultar horário: Sem conexão com DB.")
+        return None
+
+    agora_utc = datetime.now(timezone.utc)
+    # Começa a procurar um pouco à frente
+    inicio_procura_utc = agora_utc + timedelta(minutes=5) # Pequena margem
+
+    for i in range(MAX_TENTATIVAS_AGENDAMENTO):
+        horario_tentativa_utc = _proximo_horario_util(inicio_procura_utc)
+        try:
+            # Verifica se existe alguma consulta agendada ou confirmada para este horário
+            filtro_conflito = {
+                "horario_utc": horario_tentativa_utc,
+                "status": {"$in": ["agendado", "confirmado"]} # Considera ambos como ocupados
+            }
+            conflito = consultas_db.find_one(filtro_conflito)
+            if not conflito:
+                # Encontrou horário livre
+                logging.info(f"AGENDA: Próximo horário disponível encontrado: {formatar_horario_local(horario_tentativa_utc)} ({horario_tentativa_utc.isoformat()} UTC)")
+                return horario_tentativa_utc # Retorna horário em UTC
+            else:
+                # Horário ocupado, avança para o próximo bloco
+                logging.debug(f"AGENDA: Horário {horario_tentativa_utc.isoformat()} UTC ocupado (Status: {conflito.get('status')}). Tentando próximo.")
+                inicio_procura_utc = horario_tentativa_utc + timedelta(minutes=1) # Avança 1 min
+                continue
+        except Exception as e:
+            logging.error(f"AGENDA: ❌ ERRO ao consultar próximo horário ({horario_tentativa_utc}): {e}")
+            return None # Retorna None em caso de erro na consulta
+
+    # Se o loop terminar
+    logging.warning(f"AGENDA: ⚠️ Nenhum horário disponível encontrado na consulta após {MAX_TENTATIVAS_AGENDAMENTO} tentativas.")
+    return None
+
+
+########## End Path: ./utils/agenda.py ##########
+
+
+##################################################
+########## Path: ./utils/leads.py
+##################################################
+
+from pymongo import MongoClient
+from app.config import MONGO_URI
+from datetime import datetime
+
+mongo = MongoClient(MONGO_URI)
+leads = mongo["famdomes"]["leads"]
+
+def salvar_lead(paciente_id: str, canal: str, mensagem: str, intent: str, entidades: dict, risco: bool, tipo: str = "desconhecido"):
+    leads.update_one(
+        {"paciente_id": paciente_id},
+        {
+            "$set": {
+                "mensagem_original": mensagem,
+                "intent": intent,
+                "entidades": entidades,
+                "risco": risco,
+                "canal": canal,
+                "tipo": tipo,
+                "ultima_interacao": datetime.utcnow()
+            },
+            "$setOnInsert": {
+                "paciente_id": paciente_id,
+                "criado_em": datetime.utcnow()
+            }
+        },
+        upsert=True
+    )
+
+
+########## End Path: ./utils/leads.py ##########
+
+
+##################################################
+########## Path: ./utils/ia_fallback.py
+##################################################
+
+from app.utils.ollama import chamar_ollama as chamar_ollama_completo
+
+async def chamar_ollama(prompt: str, telefone: str) -> tuple[str, list]:
+    resposta, tokens = await chamar_ollama_completo(prompt, telefone)
+    return resposta, tokens
+
+
+########## End Path: ./utils/ia_fallback.py ##########
+
+
+##################################################
+########## Path: ./utils/gerar_intents.py
+##################################################
+
+"""
+Gera intents/intents.json a partir de 'MAPEAMENTO DE INTENÇÕES – DOMO (FAM.txt)'.
+
+Uso:
+    python utils/gerar_intents.py > intents/intents.json
+"""
+import re, json, pathlib, sys
+
+RAIZ = pathlib.Path(__file__).resolve().parents[1]
+MAPA = RAIZ / "FAM.txt"
+
+BASE = {
+    "ACOLHIMENTO": {
+        "triggers": ["", ""],
+        "resposta": "Olá! Eu sou o DOMO. Estou aqui para te acompanhar. Como posso ajudar?",
+        "escala_humano": False,
+    },
+    "PRESENCA_VIVA": {
+        "triggers": [],
+        "resposta": "Só passando para lembrar que estou aqui com você. Qualquer coisa, é só chamar. 🤗",
+        "escala_humano": False,
+    },
+}
+
+def parse():
+    txt = MAPA.read_text(encoding="utf-8")
+    blocos = re.split(r"\n────────────────────────────\n", txt)
+    for bloco in blocos:
+        m_id = re.search(r"INTENT\s+(\d+):\s+(.+)", bloco)
+        if not m_id:
+            continue
+        intent_id = f"INTENT_{m_id.group(1).zfill(3)}"
+        triggers = re.findall(r"TRIGGERS:\s+(.+)", bloco)
+        resposta = re.findall(r"RESPOSTA:\s+(.+)", bloco)
+        escala = "✅" in bloco or "⚠️" in bloco or "✅✅" in bloco
+        yield intent_id, {
+            "triggers": [t.strip("“”\" ") for t in (triggers[0].split("”,") if triggers else [])],
+            "resposta": resposta[0] if resposta else "",
+            "escala_humano": escala,
+        }
+
+def main():
+    data = {**BASE, **{k: v for k, v in parse()}}
+    json.dump(data, sys.stdout, ensure_ascii=False, indent=2)
+
+if __name__ == "__main__":
+    main()
+
+
+########## End Path: ./utils/gerar_intents.py ##########
+
+
+##################################################
+########## Path: ./utils/followup.py
+##################################################
+
+# ===========================================================
+# Arquivo: utils/followup.py
+# (Implementação das funções de acompanhamento de pagamento)
+# ===========================================================
+from datetime import datetime, timezone
+from pymongo import MongoClient, ReturnDocument
+from pymongo.errors import ConnectionFailure
+# Ajuste o import se config.py estiver em um diretório diferente
+from app.config import MONGO_URI
+# Importa a função de agendamento para ser chamada após o pagamento
+# Ajuste o import se agenda.py estiver em um diretório diferente
+from app.utils.agenda import agendar_consulta, formatar_horario_local
+import logging
+
+# Configuração básica de logging
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# --- Conexão com MongoDB ---
+mongo_followup = None
+db_followup = None
+pagamentos_db = None # Coleção para rastrear status de pagamento
+
+try:
+    # Estabelece conexão com MongoDB
+    if MONGO_URI:
+        mongo_followup = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        mongo_followup.server_info() # Testa a conexão
+        db_followup = mongo_followup["famdomes"] # Nome do banco de dados
+        pagamentos_db = db_followup["pagamentos"] # Coleção para pagamentos
+        # Cria índices se não existirem
+        pagamentos_db.create_index("telefone")
+        pagamentos_db.create_index("id_sessao_stripe", sparse=True, unique=True) # ID da sessão deve ser único
+        pagamentos_db.create_index("status")
+        pagamentos_db.create_index("criado_em")
+        logging.info("FOLLOWUP: Conexão com MongoDB estabelecida para Pagamentos.")
+    else:
+        logging.error("FOLLOWUP: ❌ MONGO_URI não definido. Não foi possível conectar ao MongoDB.")
+except ConnectionFailure as e:
+     logging.error(f"FOLLOWUP: ❌ Falha na conexão com MongoDB: {e}")
+except Exception as e:
+    logging.error(f"FOLLOWUP: ❌ ERRO ao conectar com MongoDB ou criar índices: {e}")
+    mongo_followup = None
+    db_followup = None
+    pagamentos_db = None
+
+# --- Funções de Follow-up ---
+
+def iniciar_sessao(telefone: str, nome: str, id_sessao_stripe: str | None = None):
+    """
+    Registra o início de uma tentativa de pagamento no banco de dados.
+    Chamado quando o link de pagamento é gerado. Usa update_one com upsert=True
+    para criar ou atualizar o registro baseado no id_sessao_stripe, se fornecido.
+
+    Args:
+        telefone (str): Telefone do usuário.
+        nome (str): Nome do usuário.
+        id_sessao_stripe (str | None): ID da sessão de checkout do Stripe.
+    """
+    if pagamentos_db is None:
+        logging.error("FOLLOWUP: ❌ Falha ao iniciar sessão: DB indisponível.")
+        return
+
+    try:
+        agora = datetime.now(timezone.utc)
+        # Filtro: usa id_sessao_stripe se disponível, senão cria um novo (ou atualiza baseado em telefone?)
+        # É mais seguro basear no id_sessao_stripe para evitar sobrescrever sessões ativas
+        filtro = {"id_sessao_stripe": id_sessao_stripe} if id_sessao_stripe else {"telefone": telefone, "status": "link_gerado"} # Se sem ID, atualiza último link gerado
+
+        update_data = {
+            "$set": {
+                "telefone": telefone,
+                "nome": nome,
+                "status": "link_gerado", # Garante o status correto
+                "ultima_atualizacao": agora
+            },
+            "$setOnInsert": { # Define apenas na criação
+                 "id_sessao_stripe": id_sessao_stripe, # Só define ID na criação se filtro não o usou
+                 "criado_em": agora
+            }
+        }
+        # Se o filtro usou id_sessao_stripe, garante que ele seja definido no $set também
+        if id_sessao_stripe:
+            update_data["$set"]["id_sessao_stripe"] = id_sessao_stripe
+
+
+        result = pagamentos_db.update_one(filtro, update_data, upsert=True)
+
+        if result.upserted_id:
+            logging.info(f"FOLLOWUP: 📍 Nova sessão de pagamento iniciada para {telefone} ({nome}). Sessão: {id_sessao_stripe or 'N/A'}.")
+        elif result.modified_count > 0:
+             logging.info(f"FOLLOWUP: 📍 Sessão de pagamento atualizada para {telefone} ({nome}). Sessão: {id_sessao_stripe or 'N/A'}.")
+        else:
+             logging.info(f"FOLLOWUP: 📍 Sessão de pagamento para {telefone} ({nome}) não modificada (Sessão: {id_sessao_stripe or 'N/A'}).")
+
+    except Exception as e:
+        logging.exception(f"FOLLOWUP: ❌ ERRO ao iniciar/atualizar sessão de pagamento para {telefone}:")
+
+def marcar_pagamento(
+    telefone: str | None = None,
+    id_sessao_stripe: str | None = None,
+    email_cliente: str | None = None,
+    nome_cliente: str | None = None
+) -> tuple[datetime | None, str | None]:
+    """
+    Marca um pagamento como concluído no banco de dados e tenta agendar a consulta.
+    Chamado pelo webhook do Stripe após 'checkout.session.completed'.
+
+    Args:
+        telefone (str | None): Telefone do usuário (vindo dos metadados do Stripe).
+        id_sessao_stripe (str | None): ID da sessão de checkout do Stripe.
+        email_cliente (str | None): Email do cliente (vindo da sessão Stripe).
+        nome_cliente (str | None): Nome do cliente (vindo da sessão Stripe ou metadados).
+
+    Returns:
+        tuple[datetime | None, str | None]:
+            - horario_agendado_utc: O horário UTC da consulta agendada, ou None se falhar.
+            - nome_final: O nome usado para o agendamento.
+    """
+    if pagamentos_db is None:
+        logging.error("FOLLOWUP: ❌ Falha ao marcar pagamento: DB indisponível.")
+        return None, None
+
+    # Precisa do id_sessao para garantir que estamos atualizando o pagamento correto
+    if not id_sessao_stripe:
+        logging.error("FOLLOWUP: ❌ Falha ao marcar pagamento: ID da sessão Stripe ausente.")
+        # Poderia tentar buscar por telefone, mas é arriscado se houver links antigos
+        return None, None
+
+    # Monta o filtro para encontrar o registro da sessão de pagamento pelo ID
+    filtro = {"id_sessao_stripe": id_sessao_stripe}
+
+    try:
+        agora_utc = datetime.now(timezone.utc)
+        # Dados para atualizar o registro
+        update_data = {
+            "$set": {
+                "status": "pago", # Marca como pago
+                "pago_em": agora_utc,
+                "ultima_atualizacao": agora_utc,
+                "email_stripe": email_cliente,
+                # Atualiza telefone e nome se vieram do Stripe (podem ter sido preenchidos lá)
+                "telefone": telefone if telefone else "$telefone", # Mantém o original se não veio
+                "nome": nome_cliente if nome_cliente else "$nome" # Mantém o original se não veio
+            }
+        }
+
+        # Encontra e atualiza o registro do pagamento
+        # Retorna o documento APÓS a atualização para pegar os dados mais recentes
+        pagamento_atualizado = pagamentos_db.find_one_and_update(
+            filtro,
+            update_data,
+            return_document=ReturnDocument.AFTER # Pega o documento atualizado
+        )
+
+        if pagamento_atualizado:
+            logging.info(f"FOLLOWUP: 💰 Pagamento confirmado para sessão {id_sessao_stripe} (Telefone: {pagamento_atualizado.get('telefone')}).")
+            # Usa os dados atualizados para agendar
+            tel_para_agendar = pagamento_atualizado.get('telefone')
+            nome_para_agendar = pagamento_atualizado.get('nome', 'Cliente')
+            email_para_agendar = pagamento_atualizado.get('email_stripe') # Usa o email do Stripe
+
+            # Verifica se temos telefone para agendar
+            if not tel_para_agendar:
+                 logging.error(f"FOLLOWUP: ❌ Telefone ausente no registro de pagamento {id_sessao_stripe} após atualização. Não é possível agendar.")
+                 return None, nome_para_agendar # Retorna nome para possível notificação
+
+            # --- Tenta Agendar a Consulta ---
+            logging.info(f"FOLLOWUP: Tentando agendar consulta para {nome_para_agendar} ({tel_para_agendar})...")
+            horario_agendado_utc = agendar_consulta(
+                telefone=tel_para_agendar,
+                nome=nome_para_agendar,
+                email=email_para_agendar
+            )
+
+            if horario_agendado_utc:
+                logging.info(f"FOLLOWUP: ✅ Consulta agendada com sucesso para {tel_para_agendar} em {formatar_horario_local(horario_agendado_utc)}.")
+                # Salva o horário agendado no registro de pagamento
+                pagamentos_db.update_one(
+                    {"_id": pagamento_atualizado["_id"]},
+                    {"$set": {"horario_consulta_agendada_utc": horario_agendado_utc, "status": "agendado"}} # Atualiza status final
+                )
+                return horario_agendado_utc, nome_para_agendar
+            else:
+                logging.error(f"FOLLOWUP: ❌ Falha ao agendar consulta para {tel_para_agendar} após pagamento.")
+                # O pagamento foi marcado, mas o agendamento falhou. Requer atenção manual.
+                pagamentos_db.update_one(
+                     {"_id": pagamento_atualizado["_id"]},
+                     {"$set": {"status": "pago_erro_agendamento"}} # Marca status especial
+                )
+                return None, nome_para_agendar # Retorna None para horário, mas nome para possível notificação
+        else:
+            logging.warning(f"FOLLOWUP: ⚠️ Nenhum registro de pagamento encontrado para ID Sessão Stripe: {id_sessao_stripe}. Pagamento pode já ter sido processado ou ID inválido.")
+            return None, None
+
+    except Exception as e:
+        logging.exception(f"FOLLOWUP: ❌ ERRO CRÍTICO ao marcar pagamento/agendar para ID Sessão {id_sessao_stripe}:")
+        return None, None
+
+# TODO: Adicionar função para checar follow-ups (ex: pagamentos com link_gerado > X horas) se necessário.
+# async def checar_followups(): ...
+
+
+
+########## End Path: ./utils/followup.py ##########
+
+
+##################################################
+########## Path: ./schemas/ia_comando.py
+##################################################
+
+from pydantic import BaseModel
+
+class IAComandoInput(BaseModel):
+    telefone: str
+    nome: str
+    comando: str
+
+
+########## End Path: ./schemas/ia_comando.py ##########
+
+
+##################################################
+########## Path: ./routes/resetar.py
+##################################################
+
+from fastapi import APIRouter, HTTPException
+from app.utils.contexto import limpar_contexto
+
+router = APIRouter()
+
+@router.post("/painel/resetar-contexto/{telefone}")
+def resetar_contexto(telefone: str):
+    if not telefone:
+        raise HTTPException(status_code=400, detail="Telefone é obrigatório.")
+    
+    try:
+        sucesso = limpar_contexto(telefone)
+        if sucesso:
+            return {"status": "resetado", "telefone": telefone}
+        else:
+            raise HTTPException(status_code=500, detail="Falha ao tentar limpar o contexto.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro inesperado: {str(e)}")
+
+
+########## End Path: ./routes/resetar.py ##########
+
+
+##################################################
+########## Path: ./routes/pagamentos.py
+##################################################
+
+from fastapi import APIRouter, Request
+from app.models.pagamentos import PagamentoRequest
+import stripe
+from app.config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+from app.utils.agenda import agendar_consulta
+from app.utils.mensageria import enviar_mensagem
+
+stripe.api_key = STRIPE_SECRET_KEY
+router = APIRouter()
+
+@router.post("/webhook")
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature")
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
+    except Exception as e:
+        return {"erro": str(e)}
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        telefone = session["metadata"].get("telefone")
+        nome = session["metadata"].get("nome", "Paciente")
+        email = session["metadata"].get("email")
+
+        horario = agendar_consulta(telefone, nome, email)
+
+        msg_paciente = (
+            f"✅ Olá {nome}, seu agendamento está confirmado!\n"
+            f"🕒 Horário: {horario.strftime('%d/%m %H:%M')}\n"
+            "Você será chamado pelo profissional nesse horário. Até lá!"
+        )
+        enviar_mensagem(telefone, msg_paciente)
+
+        msg_medico = f"👨‍⚕️ Novo agendamento: {nome} ({telefone}) às {horario.strftime('%d/%m %H:%M')}."
+        enviar_mensagem("MEDICO", msg_medico)
+
+        return {"status": "confirmado"}
+
+    return {"status": "ignorado"}
+
+
+########## End Path: ./routes/pagamentos.py ##########
+
+
+##################################################
+########## Path: ./routes/painel.py
+##################################################
+
+from fastapi import APIRouter
+from pymongo import MongoClient
+from app.config import MONGO_URI
+
+router = APIRouter()
+
+mongo = MongoClient(MONGO_URI)
+colecao = mongo["famdomes"]["respostas_ia"]
+
+@router.get("/consulta/{token}")
+async def status_consulta(token: str):
+    return {
+        "token": token,
+        "status": "confirmado",
+        "mensagem": "Sua sessão está confirmada com um profissional."
+    }
+
+@router.get("/historico/{telefone}")
+async def historico_respostas(telefone: str):
+    resultados = colecao.find({"telefone": telefone}).sort("criado_em", -1)
+    historico = []
+    for doc in resultados:
+        historico.append({
+            "mensagem": doc.get("mensagem"),
+            "resposta": doc.get("resposta"),
+            "intent": doc.get("intent"),
+            "risco": doc.get("risco"),
+            "criado_em": doc.get("criado_em").isoformat()
+        })
+    return {"historico": historico}
+
+
+########## End Path: ./routes/painel.py ##########
+
+
+##################################################
+########## Path: ./routes/nlp.py
+##################################################
+
+from fastapi import APIRouter, Request
+from app.utils.offnlp import processar_mensagem  
+from app.utils.leads import salvar_lead
+from datetime import datetime
+
+router = APIRouter()
+
+@router.post("/chat/nlp")
+async def chat_nlp(request: Request):
+    dados = await request.json()
+    mensagem = dados.get("mensagem")
+    paciente_id = dados.get("paciente_id")
+    canal = dados.get("canal")
+
+    if not mensagem or not paciente_id:
+        return {"erro": "Dados incompletos"}
+
+    resultado = await processar_mensagem(mensagem, paciente_id, canal)
+
+    salvar_lead(
+        paciente_id=paciente_id,
+        canal=canal,
+        mensagem=mensagem,
+        intent=resultado["intent"],
+        entidades=resultado["entidades"],
+        risco=resultado["risco"]
+    )
+
+    return resultado
+
+
+########## End Path: ./routes/nlp.py ##########
+
+
+##################################################
+########## Path: ./routes/stripe.py
+##################################################
+
+# ===========================================================
+# Arquivo: routes/stripe.py
+# (Implementação do webhook do Stripe)
+# ===========================================================
+from fastapi import APIRouter, Request, Header, HTTPException, BackgroundTasks
+import stripe # Importa a biblioteca do Stripe
+import logging
+
+# Ajuste os imports conforme a estrutura do seu projeto
+from app.config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+# Importa funções de followup e agenda
+from app.utils.followup import marcar_pagamento
+from app.utils.agenda import formatar_horario_local
+# Importa função para salvar contexto e enviar mensagem
+from app.utils.contexto import salvar_contexto
+from app.utils.mensageria import enviar_mensagem
+
+# Configuração básica de logging
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Cria um roteador FastAPI para este módulo
+router = APIRouter(prefix="/webhook", tags=["Stripe"]) # Adiciona prefixo e tag
+
+# Define a chave secreta do Stripe (carregada da configuração)
+if STRIPE_SECRET_KEY:
+    stripe.api_key = STRIPE_SECRET_KEY
+    logging.info("STRIPE Route: Chave secreta do Stripe configurada.")
+else:
+    logging.error("STRIPE Route: ❌ Chave secreta do Stripe (STRIPE_SECRET_KEY) não configurada. Webhook não funcionará.")
+    # A aplicação pode iniciar, mas o webhook falhará
+
+@router.post("/stripe/", summary="Recebe eventos do webhook do Stripe")
+async def stripe_webhook(request: Request, background_tasks: BackgroundTasks, stripe_signature: str = Header(None)):
+    """
+    Endpoint para receber eventos do Stripe via webhook.
+    Verifica a assinatura e processa eventos relevantes (ex: checkout.session.completed).
+    Processa a lógica principal em background.
+    """
+    # Verifica se a chave do webhook está configurada
+    if not STRIPE_WEBHOOK_SECRET:
+        logging.error("STRIPE Route: ❌ Chave secreta do webhook Stripe (STRIPE_WEBHOOK_SECRET) não configurada.")
+        raise HTTPException(status_code=500, detail="Configuração de webhook incompleta no servidor.")
+
+    # Obtém o corpo bruto da requisição
+    payload = await request.body()
+
+    # Verifica a assinatura do webhook para garantir que veio do Stripe
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, stripe_signature, STRIPE_WEBHOOK_SECRET
+        )
+        logging.info(f"STRIPE Route: Evento recebido tipo: {event['type']} (ID: {event['id']})")
+    except ValueError as e:
+        # Payload inválido
+        logging.error(f"STRIPE Route: ❌ Erro ao decodificar payload do webhook: {e}")
+        raise HTTPException(status_code=400, detail="Payload inválido.")
+    except stripe.error.SignatureVerificationError as e:
+        # Assinatura inválida
+        logging.error(f"STRIPE Route: ❌ Erro na verificação da assinatura do webhook: {e}")
+        raise HTTPException(status_code=400, detail="Assinatura inválida.")
+    except Exception as e:
+        logging.exception("STRIPE Route: ❌ Erro inesperado ao construir evento do webhook:")
+        raise HTTPException(status_code=500, detail="Erro interno ao processar webhook.")
+
+    # --- Processamento do Evento (em Background) ---
+    # Adiciona a tarefa de processar o evento em background
+    background_tasks.add_task(processar_evento_stripe, event)
+
+    # Retorna 200 OK imediatamente para o Stripe
+    return {"status": "recebido"}
+
+async def processar_evento_stripe(event: dict):
+    """
+    Função executada em background para processar o evento do Stripe.
+    """
+    event_type = event["type"]
+    session = event["data"]["object"] # O objeto da sessão de checkout
+
+    logging.info(f"STRIPE BG Task: Processando evento tipo: {event_type} (Sessão ID: {session.get('id', 'N/A')})")
+
+    # --- Evento: Checkout Concluído com Sucesso ---
+    if event_type == "checkout.session.completed":
+        # Extrai metadados e informações do cliente da sessão Stripe
+        metadata = session.get("metadata", {})
+        telefone_cliente = metadata.get("telefone")
+        nome_cliente_meta = metadata.get("nome") # Nome dos metadados (pode ser mais confiável)
+
+        customer_details = session.get("customer_details", {})
+        email_cliente = customer_details.get("email")
+        nome_cliente_stripe = customer_details.get("name") # Nome direto do Stripe
+
+        # Usa o nome dos metadados como prioridade, senão o do Stripe
+        nome_final = nome_cliente_meta or nome_cliente_stripe or "Cliente"
+
+        id_sessao_stripe = session.get("id")
+
+        # Verifica se temos o telefone (essencial para continuar)
+        if not telefone_cliente:
+            logging.error(f"STRIPE BG Task: ❌ Evento {event_type} (Sessão: {id_sessao_stripe}) sem 'telefone' nos metadados. Não é possível prosseguir.")
+            return # Aborta o processamento
+
+        logging.info(f"STRIPE BG Task: Checkout concluído para {nome_final} ({telefone_cliente}). Sessão: {id_sessao_stripe}")
+
+        # Tenta marcar o pagamento e agendar a consulta
+        horario_agendado_utc, nome_agendado = await asyncio.to_thread(
+             marcar_pagamento, # Executa a função síncrona em uma thread separada
+             telefone=telefone_cliente,
+             id_sessao_stripe=id_sessao_stripe,
+             email_cliente=email_cliente,
+             nome_cliente=nome_final
+        )
+        # horario_agendado_utc, nome_agendado = marcar_pagamento( # Se marcar_pagamento fosse async
+        #     telefone=telefone_cliente,
+        #     id_sessao_stripe=id_sessao_stripe,
+        #     email_cliente=email_cliente,
+        #     nome_cliente=nome_final
+        # )
+
+
+        if horario_agendado_utc:
+            # Agendamento bem-sucedido!
+            horario_formatado = formatar_horario_local(horario_agendado_utc)
+            # Monta mensagem de confirmação para o paciente
+            msg_paciente = (
+                f"✅ Olá {nome_agendado}, pagamento confirmado!\n\n"
+                f"Sua consulta inicial está agendada para:\n"
+                f"🗓️ **{horario_formatado}** (Horário de Brasília).\n\n"
+                f"O profissional entrará em contato com você por aqui neste horário. Até lá!"
+            )
+            # Envia a confirmação para o paciente
+            await enviar_mensagem(telefone_cliente, msg_paciente)
+
+            # Monta notificação para o médico/equipe (opcional)
+            # TODO: Definir número/canal do médico em config.py
+            numero_medico = os.getenv("WHATSAPP_MEDICO_AVISO")
+            if numero_medico:
+                msg_medico = f"👨‍⚕️ Novo agendamento confirmado:\n\nPaciente: {nome_agendado}\nTelefone: {telefone_cliente}\nHorário: {horario_formatado}"
+                await enviar_mensagem(numero_medico, msg_medico)
+
+            # --- ATUALIZA O ESTADO DA CONVERSA ---
+            # Muda o estado para iniciar o questionário na próxima interação
+            logging.info(f"STRIPE BG Task: Atualizando estado para CONFIRMANDO_AGENDAMENTO para {telefone_cliente}")
+            salvar_contexto(telefone_cliente, {
+                "estado": "CONFIRMANDO_AGENDAMENTO",
+                "nome": nome_agendado, # Salva/Atualiza o nome no contexto
+                "meta_conversa": {"email_cliente": email_cliente} # Salva email na meta
+            })
+
+        else:
+            # Falha no agendamento após pagamento
+            logging.error(f"STRIPE BG Task: ❌ Pagamento confirmado para {telefone_cliente}, mas FALHA AO AGENDAR consulta.")
+            # Envia mensagem de erro para o paciente
+            msg_erro_agendamento = (
+                f"⚠️ Olá {nome_agendado}, seu pagamento foi confirmado, mas houve um problema ao agendar automaticamente sua consulta.\n\n"
+                f"Não se preocupe, nossa equipe já foi notificada e entrará em contato em breve para finalizar o agendamento manualmente. Obrigado pela compreensão."
+            )
+            await enviar_mensagem(telefone_cliente, msg_erro_agendamento)
+            # TODO: Notificar equipe interna sobre a falha no agendamento automático
+
+    # --- Outros Eventos (Opcional) ---
+    # elif event_type == "checkout.session.async_payment_failed":
+    #     logging.warning(f"STRIPE BG Task: Pagamento assíncrono falhou para sessão {session.get('id')}")
+    #     # Lógica para lidar com falha (ex: notificar usuário)
+    # elif event_type == "checkout.session.expired":
+    #      logging.info(f"STRIPE BG Task: Sessão de checkout expirada: {session.get('id')}")
+         # Lógica para lidar com expiração (ex: marcar no DB)
+
+    else:
+        # Evento não tratado
+        logging.info(f"STRIPE BG Task: Evento tipo '{event_type}' não tratado.")
+
+    logging.info(f"STRIPE BG Task: Processamento do evento concluído.")
+
+# Importar asyncio e json se não estiverem importados
+import asyncio
+import json
+import os # Para getenv
+
+
+########## End Path: ./routes/stripe.py ##########
+
+
+##################################################
+########## Path: ./routes/admin.py
+##################################################
+
+from fastapi import APIRouter, Response, Depends, HTTPException
+from app.core.metrics import prometheus_response, json_response
+from app.config import settings
+
+router = APIRouter(prefix="/admin", tags=["Admin"])
+
+def _auth(token: str):
+    if token != getattr(settings, "API_KEY", None):
+        raise HTTPException(status_code=403)
+
+@router.get("/metrics")
+def metrics(token: str = Depends(_auth)):
+    data, content_type = prometheus_response()
+    return Response(content=data, media_type=content_type)
+
+@router.get("/stats")
+def stats(token: str = Depends(_auth)):
+    return json_response()
+
+
+########## End Path: ./routes/admin.py ##########
+
+
+##################################################
+########## Path: ./routes/entrada.py
+##################################################
+
+
+"""
+Webhook de entrada para mensagens (WhatsApp ou futuro canal).
+Encaminha para o MCP Orquestrador.
+"""
+from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel, constr
+from app.core.mcp_orquestrador import MCPOrquestrador
+
+router = APIRouter(tags=["Entrada"])
+
+class MensagemIn(BaseModel):
+    telefone: constr(strip_whitespace=True, min_length=8)
+    texto:    constr(strip_whitespace=True, min_length=1)
+
+@router.post("/", status_code=status.HTTP_202_ACCEPTED)
+async def receber_mensagem(msg: MensagemIn):
+    try:
+        await MCPOrquestrador().processar_mensagem(msg.telefone, msg.texto)
+    except Exception as exc:  # pragma: no cover
+        raise HTTPException(500, "Erro interno ao processar mensagem") from exc
+    return {"status": "aceito"}
+
+
+########## End Path: ./routes/entrada.py ##########
+
+
+##################################################
+########## Path: ./routes/rocketchat.py
+##################################################
+
+from fastapi import APIRouter, Request
+import httpx
+from app.config import WHATSAPP_API_URL, WHATSAPP_TOKEN, MONGO_URI
+from pymongo import MongoClient
+from datetime import datetime
+
+router = APIRouter()
+
+mongo = MongoClient(MONGO_URI)
+acompanhamentos = mongo["famdomes"]["acompanhamentos"]
+
+@router.post("/webhook/rocketchat/")
+async def receber_rocketchat(request: Request):
+    body = await request.json()
+    mensagem = body.get("message", {}).get("msg")
+    telefone = body.get("message", {}).get("metadata", {}).get("phone")
+
+    if not mensagem or not telefone:
+        return {"erro": "mensagem ou telefone ausente"}
+
+    # 1. Marcar como acompanhado, se ainda não tiver sido
+    existente = acompanhamentos.find_one({"telefone": telefone})
+    if not existente:
+        acompanhamentos.insert_one({
+            "telefone": telefone,
+            "mensagem_inicial": mensagem,
+            "assumido_em": datetime.utcnow()
+        })
+
+    # 2. Enviar ao WhatsApp
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": telefone,
+        "type": "text",
+        "text": {
+            "body": mensagem
+        }
+    }
+
+    headers = {
+        "Authorization": f"Bearer {WHATSAPP_TOKEN}"
+    }
+
+    async with httpx.AsyncClient() as client:
+        r = await client.post(WHATSAPP_API_URL, json=payload, headers=headers)
+
+    return {
+        "status": "enviado",
+        "whatsapp_code": r.status_code,
+        "acompanhamento_registrado": not existente
+    }
+
+
+########## End Path: ./routes/rocketchat.py ##########
+
+
+##################################################
+########## Path: ./routes/agendamento.py
+##################################################
+
+# ===========================================================
+# Arquivo: routes/agendamento.py
+# (Corrigido para importar a função correta de agenda.py)
+# ===========================================================
+from fastapi import APIRouter, HTTPException
+import logging
+
+# Ajuste o import conforme a estrutura do seu projeto
+# Importa a função correta para consultar o próximo horário
+from app.utils.agenda import consultar_proximo_horario_disponivel, formatar_horario_local
+
+# Configuração básica de logging
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Cria um roteador FastAPI para este módulo
+router = APIRouter(prefix="/agenda", tags=["Agendamento"]) # Adiciona prefixo e tag
+
+@router.get("/proximo", summary="Consulta o próximo horário de agendamento disponível")
+async def proximo_agendamento_disponivel():
+    """
+    Endpoint para verificar o próximo horário livre na agenda.
+    Retorna o horário formatado ou uma mensagem indicando indisponibilidade.
+    """
+    logging.info("AGENDAMENTO Route: Consultando próximo horário disponível...")
+    try:
+        # Chama a função correta para obter o próximo horário UTC
+        horario_utc = consultar_proximo_horario_disponivel()
+
+        if horario_utc:
+            # Formata o horário para o fuso local
+            horario_formatado = formatar_horario_local(horario_utc)
+            logging.info(f"AGENDAMENTO Route: Próximo horário encontrado: {horario_formatado}")
+            return {"proximo_horario_disponivel": horario_formatado, "horario_utc": horario_utc.isoformat()}
+        else:
+            # Se a função retornar None (sem horário ou erro no DB)
+            logging.info("AGENDAMENTO Route: Nenhum horário disponível encontrado.")
+            return {"proximo_horario_disponivel": None, "mensagem": "Nenhum horário disponível encontrado no momento."}
+    except Exception as e:
+        # Captura qualquer erro inesperado durante a consulta
+        logging.exception("AGENDAMENTO Route: ❌ Erro inesperado ao consultar próximo horário:")
+        raise HTTPException(status_code=500, detail="Erro interno ao consultar a agenda.")
+
+
+
+########## End Path: ./routes/agendamento.py ##########
+
+
+##################################################
+########## Path: ./routes/whatsapp.py
+##################################################
+
+# ===========================================================
+# Arquivo: routes/whatsapp.py
+# Webhook Cloud API → MCPOrquestrador
+# ===========================================================
+from __future__ import annotations
+
+import json
+import logging
+from fastapi import APIRouter, BackgroundTasks, Request, Response, status, HTTPException
+from pydantic import BaseModel, constr
+from app.config import WHATSAPP_VERIFY_TOKEN
+from app.core.mcp_orquestrador import MCPOrquestrador
+from app.utils.mensageria import enviar_mensagem
+from app.utils.contexto import limpar_contexto
+
+logger = logging.getLogger("famdomes.whatsapp")
+
+router = APIRouter(prefix="/chat/webhook/whatsapp", tags=["WhatsApp"])
+
+# ----------------------------------------------------------------------
+# 1 · Verificação inicial da Meta
+@router.get("/", summary="Verifica webhook do WhatsApp")
+async def verificar_webhook(request: Request) -> Response:
+    args = request.query_params
+    if (
+        args.get("hub.mode") == "subscribe"
+        and args.get("hub.verify_token") == WHATSAPP_VERIFY_TOKEN
+    ):
+        logger.info("Webhook WhatsApp verificado com sucesso.")
+        return Response(content=args.get("hub.challenge"), media_type="text/plain")
+    logger.warning("Falha na verificação do webhook – token incorreto.")
+    raise HTTPException(status_code=403, detail="Token inválido")
+
+# ----------------------------------------------------------------------
+# 2 · Modelo interno para facilitar debug (não exposto na API)
+class _WhatsappMsg(BaseModel):
+    telefone: constr(strip_whitespace=True, min_length=8)
+    texto: constr(strip_whitespace=True, min_length=1)
+
+# ----------------------------------------------------------------------
+# 3 · Recepção de mensagens
+@router.post("/", status_code=status.HTTP_200_OK, summary="Webhook WhatsApp (POST)")
+async def receber_mensagem(
+    request: Request,
+    background_tasks: BackgroundTasks,
+) -> Response:
+    """
+    Recebe payload da Cloud API, extrai texto e delega ao MCP
+    em task de background (latência mínima p/ Meta).
+    """
+    data = await request.json()
+    try:
+        entry = data["entry"][0]
+        changes = entry["changes"][0]
+        value = changes["value"]
+    except (KeyError, IndexError, TypeError):
+        # payload diferente (status, etc.) ⇒ apenas 200
+        return Response(status_code=200)
+
+    # Eventos de status não contêm 'messages'
+    messages = value.get("messages", [])
+    if not messages:
+        return Response(status_code=200)
+
+    msg = messages[0]
+    if "text" not in msg or "body" not in msg["text"]:
+        return Response(status_code=200)  # apenas mídia, voice, etc.
+
+    texto = msg["text"]["body"].strip()
+    telefone = msg["from"]
+
+    # Comando de reset (não vai ao MCP)
+    gatilho_reset = texto.lower().replace("\u200b", "").strip()  # remove zero‑width
+    if gatilho_reset.startswith("melancia") and "vermelha" in gatilho_reset:
+        background_tasks.add_task(_resetar_conversa, telefone)
+        return Response(status_code=200)
+
+    # Normal: delega ao MCP em background
+    background_tasks.add_task(_processar_mcp, telefone, texto)
+    return Response(status_code=200)
+
+# ----------------------------------------------------------------------
+# 4 · Task: reset
+async def _resetar_conversa(telefone: str) -> None:
+    limpar_contexto(telefone)        # ignoramos retorno: sempre zera
+    await enviar_mensagem(
+        telefone,
+        "🔄 Sua conversa foi reiniciada. Pode começar de novo!",
+    )
+    logger.info("Reset concluído para %s", telefone)
+
+
+# ----------------------------------------------------------------------
+# 5 · Task: encaminhar para MCP
+async def _processar_mcp(telefone: str, texto: str) -> None:
+    try:
+        await MCPOrquestrador().processar_mensagem(telefone, texto)
+    except Exception as exc:  # pragma: no cover
+        logger.exception("MCP erro para %s: %s", telefone, exc)
+        await enviar_mensagem(
+            telefone,
+            "⚠️ Desculpe, houve um erro interno. Tente novamente em instantes.",
+        )
+
+
+########## End Path: ./routes/whatsapp.py ##########
+
+
+##################################################
+########## Path: ./routes/ia.py
+##################################################
+
+# ===========================================================
+# Arquivo: routes/ia.py
+# (Contém a lógica para processar comandos específicos como agendar)
+# ===========================================================
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+import logging
+import stripe # Importa a biblioteca do Stripe
+from datetime import datetime, timedelta # Para expiração da sessão
+
+# Ajuste os imports das funções utilitárias conforme a estrutura do seu projeto
+# Assume que estão em app/utils/
+from app.utils.agenda import (
+    agendar_consulta,
+    cancelar_consulta,
+    consultar_proximo_horario_disponivel,
+    formatar_horario_local
+)
+from app.utils.mensageria import enviar_mensagem
+# Assume que followup.py existe e tem iniciar_sessao (se usado)
+# from app.utils.followup import iniciar_sessao
+# Assume que config.py existe e tem a chave do Stripe
+from app.config import STRIPE_SECRET_KEY
+
+# Configuração básica de logging
+# logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Cria um roteador FastAPI para este módulo
+router = APIRouter()
+
+# Define a chave secreta do Stripe (carregada da configuração)
+if STRIPE_SECRET_KEY:
+    stripe.api_key = STRIPE_SECRET_KEY
+    logging.info("IA Route: Chave secreta do Stripe configurada.")
+else:
+    logging.warning("IA Route: ⚠️ Chave secreta do Stripe (STRIPE_SECRET_KEY) não configurada.")
+    # Considerar levantar um erro ou desabilitar funcionalidade de pagamento
+
+# Modelo Pydantic para validar a entrada da API /ia-comando (se usada)
+class ComandoIAInput(BaseModel):
+    telefone: str
+    nome: str
+    comando: str # Ex: "quero agendar", "ver horário", "cancelar"
+
+# --- Endpoint da API (Opcional) ---
+@router.post("/ia-comando", summary="Processa comandos específicos da IA", tags=["IA"])
+async def processar_comando_post(dados: ComandoIAInput):
+    """
+    Recebe um comando específico (agendar, cancelar, ver horário)
+    e executa a ação correspondente. (Endpoint HTTP opcional)
+    """
+    # Verifica se a API do Stripe está configurada antes de prosseguir com agendamento
+    if "agendar" in dados.comando.lower() and not STRIPE_SECRET_KEY:
+         logging.error("IA Route: ❌ Tentativa de agendamento via API sem STRIPE_SECRET_KEY.")
+         raise HTTPException(status_code=503, detail="Funcionalidade de pagamento indisponível.")
+
+    # Chama a função principal que processa o comando
+    resultado = await processar_comando(dados.dict())
+    # Retorna o resultado da função
+    return resultado
+
+# --- Função Principal de Processamento de Comandos ---
+# Esta função é chamada pelo endpoint acima e também diretamente por nlp.py
+
+async def processar_comando(dados: dict) -> dict:
+    """
+    Processa comandos específicos vindos da interação do usuário ou da IA.
+
+    Args:
+        dados (dict): Dicionário contendo 'telefone', 'nome' e 'comando'.
+
+    Returns:
+        dict: Dicionário com o status da operação e mensagens relevantes.
+    """
+    telefone = dados.get("telefone")
+    nome = dados.get("nome", "Cliente") # Usa 'Cliente' como nome padrão
+    comando = dados.get("comando", "").lower() # Pega o comando e converte para minúsculas
+
+    # Validação básica de entrada
+    if not telefone or not comando:
+        logging.warning("IA Route: Comando recebido sem telefone ou comando.")
+        # Retorna um erro ou uma resposta padrão indicando falha
+        # Não levanta HTTPException aqui pois pode ser chamado internamente por nlp.py
+        return {"status": "erro_input", "mensagem": "Dados insuficientes para processar comando."}
+
+    logging.info(f"IA Route: Processando comando '{comando}' para {telefone} ({nome})...")
+
+    # --- Lógica para Comando "agendar" ---
+    if "agendar" in comando:
+        # Verifica novamente se Stripe está configurado
+        if not STRIPE_SECRET_KEY:
+            logging.error("IA Route: ❌ Tentativa de agendamento sem STRIPE_SECRET_KEY configurada.")
+            msg_erro = "Desculpe, a opção de agendamento online não está disponível no momento."
+            # Não envia mensagem aqui, pois nlp.py tratará a resposta
+            # await enviar_mensagem(telefone, msg_erro)
+            return {"status": "erro_config_stripe", "mensagem": msg_erro}
+
+        # TODO: Descomentar se a função iniciar_sessao for usada para tracking
+        # Inicia a sessão de pagamento/follow-up (se aplicável)
+        # iniciar_sessao(telefone, nome) # Registra a tentativa no DB de follow-up
+
+        try:
+            # Cria uma sessão de checkout no Stripe
+            logging.info(f"IA Route: Criando sessão Stripe Checkout para {telefone}...")
+            # Define o URL base (pode vir do .env)
+            base_url = os.getenv("APP_BASE_URL", "[https://famdomes.com.br](https://famdomes.com.br)") # Exemplo
+            success_url = f"{base_url}/sucesso?session_id={{CHECKOUT_SESSION_ID}}"
+            cancel_url = f"{base_url}/cancelado"
+
+            session = stripe.checkout.Session.create(
+                payment_method_types=["card", "boleto"], # Aceita cartão e boleto
+                line_items=[{
+                    "price_data": {
+                        "currency": "brl", # Moeda brasileira
+                        "product_data": {"name": "Consulta Inicial FAMDOMES"}, # Nome do produto
+                        "unit_amount": 10000, # Preço em centavos (R$ 100,00)
+                    },
+                    "quantity": 1, # Quantidade
+                }],
+                mode="payment", # Modo de pagamento único
+                # URLs para redirecionamento após sucesso ou cancelamento
+                success_url=success_url,
+                cancel_url=cancel_url,
+                # Metadados para identificar o cliente no webhook
+                metadata={
+                    "telefone": telefone,
+                    "nome": nome
+                },
+                # Configuração para Boleto (opcional, mas recomendada)
+                payment_intent_data={
+                     # 'setup_future_usage': 'off_session' # Pode não ser necessário para pagamentos únicos
+                },
+                # Expiração da sessão de checkout (ex: 2 horas)
+                expires_at=int((datetime.now() + timedelta(hours=2)).timestamp())
+            )
+            logging.info(f"IA Route: Sessão Stripe criada com ID: {session.id} para {telefone}")
+
+            # Monta a mensagem com o link de pagamento para o usuário
+            msg_link = f"✅ Ótimo! Para agendar sua consulta inicial (valor R$100,00), por favor, realize o pagamento seguro através deste link:\n{session.url}\n\nO link expira em breve."
+            # A mensagem será enviada por nlp.py, aqui apenas retornamos os dados
+            # await enviar_mensagem(telefone, msg_link)
+            # Retorna o status e a URL de checkout
+            return {"status": "link_gerado", "checkout_url": session.url, "mensagem": msg_link}
+
+        except stripe.error.StripeError as e:
+             # Erro específico do Stripe
+             logging.error(f"IA Route: ❌ Erro Stripe ao criar checkout para {telefone}: {e}")
+             msg_erro = "❌ Desculpe, ocorreu um erro ao tentar gerar o link de pagamento com nosso parceiro. Por favor, tente novamente mais tarde ou entre em contato conosco."
+             # await enviar_mensagem(telefone, msg_erro)
+             return {"status": "erro_stripe", "mensagem": msg_erro}
+        except Exception as e:
+             # Outro erro inesperado
+             logging.exception(f"IA Route: ❌ Erro inesperado ao criar checkout para {telefone}:")
+             msg_erro = "❌ Desculpe, ocorreu um erro inesperado ao gerar seu link de pagamento. Tente novamente mais tarde."
+             # await enviar_mensagem(telefone, msg_erro)
+             return {"status": "erro_desconhecido", "mensagem": msg_erro}
+
+    # --- Lógica para Comando "cancelar" ---
+    elif "cancelar" in comando:
+        logging.info(f"IA Route: Processando cancelamento de consulta para {telefone}...")
+        # Chama a função para cancelar consultas futuras
+        # TODO: Implementar a função cancelar_consulta em utils/agenda.py
+        consultas_canceladas = cancelar_consulta(telefone) # Assume que retorna int
+        if consultas_canceladas > 0:
+            msg = f"✅ Sua(s) {consultas_canceladas} consulta(s) futura(s) foi(ram) cancelada(s) com sucesso."
+            # await enviar_mensagem(telefone, msg)
+            return {"status": "consulta_cancelada", "quantidade": consultas_canceladas, "mensagem": msg}
+        else:
+            msg = "Não encontrei nenhuma consulta futura agendada para cancelar em seu nome."
+            # await enviar_mensagem(telefone, msg)
+            return {"status": "nenhuma_consulta_encontrada", "mensagem": msg}
+
+    # --- Lógica para Comando "horário" ou "disponível" ---
+    elif "horário" in comando or "disponível" in comando or "disponivel" in comando:
+        logging.info(f"IA Route: Consultando próximo horário disponível para {telefone}...")
+        # Chama a função para consultar o próximo horário livre
+        # TODO: Implementar consultar_proximo_horario_disponivel e formatar_horario_local em utils/agenda.py
+        proximo_horario_utc = consultar_proximo_horario_disponivel() # Assume que retorna datetime UTC ou None
+        if proximo_horario_utc:
+            # Formata o horário para o fuso local antes de enviar
+            horario_formatado = formatar_horario_local(proximo_horario_utc, 'America/Sao_Paulo') # Exemplo de fuso
+            msg = f"📅 O próximo horário disponível para agendamento é: {horario_formatado} (Horário de Brasília)."
+            # await enviar_mensagem(telefone, msg)
+            return {"status": "horario_enviado", "horario_utc": proximo_horario_utc.isoformat(), "horario_formatado": horario_formatado, "mensagem": msg}
+        else:
+            msg = "📅 Desculpe, não consegui encontrar um horário disponível no momento. Por favor, tente novamente mais tarde."
+            # await enviar_mensagem(telefone, msg)
+            return {"status": "horario_indisponivel", "mensagem": msg}
+
+    # --- Comando Desconhecido ---
+    else:
+        logging.warning(f"IA Route: Comando IA desconhecido recebido de {telefone}: '{comando}'")
+        # Mensagem padrão para comandos não reconhecidos
+        msg = "🤖 Desculpe, não entendi o que você deseja fazer. Você pode me pedir para 'agendar consulta', 'cancelar consulta' ou 'ver próximo horário disponível'."
+        # await enviar_mensagem(telefone, msg)
+        return {"status": "comando_desconhecido", "mensagem": msg}
+
+# Adicionar import timedelta se não estiver presente
+from datetime import timedelta
+
+
+
+########## End Path: ./routes/ia.py ##########
+
+
+##################################################
+########## Path: ./routes/followup.py
+##################################################
+
+# routes/followup.py
+
+from fastapi import APIRouter
+from utils.followup import checar_followup
+
+router = APIRouter()
+
+@router.get("/verificar-followup")
+def verificar():
+    mensagens = checar_followup()
+    return {"mensagens": mensagens}
+
+
+########## End Path: ./routes/followup.py ##########
+
+
+##################################################
+########## Path: ./main.py
+##################################################
+
+# ===========================================================
+# Arquivo: main.py  –  Versão consolidada para MCP Server
+# ===========================================================
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import logging, time
+from app.core.scheduler import iniciar as iniciar_scheduler
+# Configurações centralizadas
+from app.config import settings
+
+# Roteadores herdados
+from app.routes import whatsapp, ia, stripe, agendamento
+# Novo roteador de entrada (MCP)
+from app.routes.entrada import router as entrada_router
+from app.routes.admin import router as admin_router
+
+# ---------- Logging ----------
+logging.basicConfig(level=settings.LOG_LEVEL,
+                    format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
+logger = logging.getLogger("famdomes.main")
+
+# ---------- FastAPI ----------
+app = FastAPI(
+    title="FAMDOMES API",
+    description="Servidor MCP do FAMDOMES – cuidado emocional e dependência química",
+    version="1.1.0",
+)
+
+# ---------- CORS ----------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost", "http://localhost:3000", "https://famdomes.com.br"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ---------- Middleware de logging ----------
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    ini = time.time()
+    resp = await call_next(request)
+    logger.info("%s %s → %s • %.3fs",
+                request.method, request.url.path, resp.status_code, time.time()-ini)
+    return resp
+
+# ---------- Roteadores ----------
+app.include_router(whatsapp.router)
+app.include_router(ia.router)
+app.include_router(stripe.router)
+app.include_router(agendamento.router)
+app.include_router(entrada_router, prefix="/v1")   # <‑‑ NOVO
+app.include_router(admin_router)
+# ---------- Health / root ----------
+@app.get("/", tags=["Root"])
+async def root(): return {"status": "ok", "mcp": True}
+
+# ---------- Eventos ----------
+@app.on_event("startup")
+async def _startup():  logger.info("▶️ API iniciada na porta %s", settings.API_PORT)
+iniciar_scheduler()
+@app.on_event("shutdown")
+async def _shutdown(): logger.info("⏹️ API finalizada")
+
+
+########## End Path: ./main.py ##########
+
+
+##################################################
+########## Path: ./agents/domo_escuta.py
+##################################################
+
+"""
+Agente mínimo de acolhimento inicial.
+Usa intents.json → 'ACOLHIMENTO' ou fallback genérico.
+"""
+from app.agents.agente_base import AgenteBase
+
+class DomoEscuta(AgenteBase):
+    async def _gerar_resposta(self, telefone: str, mensagem_original: str) -> str | None:
+        return await self._carregar_mensagem_intent("ACOLHIMENTO")
+
+
+########## End Path: ./agents/domo_escuta.py ##########
+
+
+##################################################
+########## Path: ./agents/domo_generativo.py
+##################################################
+
+from app.agents.agente_base import AgenteBase
+from app.core.ia_direct import gerar_resposta_ia
+
+class DomoGenerativo(AgenteBase):
+    async def _gerar_resposta(self, telefone, mensagem_original):
+        return await gerar_resposta_ia({"tel": telefone, "msg": mensagem_original})
+
+
+########## End Path: ./agents/domo_generativo.py ##########
+
+
+##################################################
+########## Path: ./agents/domo_integrador.py
+##################################################
+
+"""
+Encapsula chamada à API WhatsApp para manter padrão único.
+Outros agentes devem usar enviar_mensagem de utils.mensageria diretamente,
+mas este agente permite ações administrativas (ex: envio em lote).
+"""
+from app.agents.agente_base import AgenteBase
+from app.utils.mensageria import enviar_mensagem
+
+class DomoIntegrador(AgenteBase):
+    async def _gerar_resposta(self, telefone: str, mensagem_original: str) -> str | None:
+        # Apenas ecoa mensagem administrativa (não usado no fluxo paciente)
+        await enviar_mensagem(telefone, "Operação concluída.")
+        return None
+
+
+########## End Path: ./agents/domo_integrador.py ##########
+
+
+##################################################
+########## Path: ./agents/domo_comercial.py
+##################################################
+
+from __future__ import annotations
+from app.agents.agente_base import AgenteBase
+from app.core.scoring import score_lead
+from app.utils.contexto import salvar_contexto, obter_contexto
+from app.core.ia_direct import gerar_resposta_ia
+
+PERGUNTAS = [
+    "1/3 – Você procura ajuda para si ou para um familiar?",
+    "2/3 – Prefere atendimento online ou presencial?",
+    "3/3 – Consegue investir num cuidado profissional mensal?",
+]
+
+class DomoComercial(AgenteBase):
+    async def _gerar_resposta(self, telefone: str, msg: str) -> str | None:
+        ctx = obter_contexto(telefone)
+        estado = ctx.get("estado", "INICIAL")
+        meta = ctx.get("meta_conversa", {})
+        etapa = meta.get("etapa_quali", 0)
+        score = meta.get("score_lead", 0)
+
+        # ---------------- Fluxo ----------------
+        if estado == "INICIAL":
+            salvar_contexto(telefone, novo_estado="MICRO", meta_conversa={"etapa_quali": 0})
+            resposta = "Posso fazer 3 perguntas rápidas pra personalizar sua ajuda? 🙂"
+
+        elif estado == "MICRO":
+            if etapa < 3:
+                prox = etapa + 1
+                salvar_contexto(telefone, meta_conversa={"etapa_quali": prox})
+                resposta = PERGUNTAS[etapa]
+            else:
+                score = score_lead(msg)
+                salvar_contexto(
+                    telefone, novo_estado="PITCH",
+                    meta_conversa={"score_lead": score}
+                )
+                resposta = (
+                    "Excelente! Recomendo o Plano Premium (R$ 199/mês). Topa conhecer?"
+                    if score >= 4 else
+                    "Perfeito! Temos Plano Essencial por R$ 79/mês. Quer saber mais?"
+                )
+
+        elif estado == "PITCH":
+            salvar_contexto(telefone, novo_estado="CTA")
+            resposta = "Segue o link de pagamento Pix instantâneo: https://pay.famdomes.com/px"
+
+        elif estado == "CTA":
+            if "sim" in msg.lower():
+                salvar_contexto(telefone, novo_estado="AGUARDANDO_PAGTO")
+                resposta = "Ótimo! Assim que o pagamento confirmar, começamos a triagem. 💚"
+            else:
+                salvar_contexto(telefone, novo_estado="RECUSA")
+                resposta = "Sem problemas. Posso enviar conteúdo gratuito sobre primeiros passos?"
+
+        else:
+            resposta = None  # queda para generativo
+
+        # ---------- Antiloop ----------
+        if resposta:
+            ultimo = ctx.get("ultimo_texto_bot", "")
+            if resposta.strip().lower() == ultimo.strip().lower():
+                resposta = await gerar_resposta_ia({"tel": telefone, "msg": msg})
+
+        return resposta
+
+
+########## End Path: ./agents/domo_comercial.py ##########
+
+
+##################################################
+########## Path: ./agents/domo_presenca.py
+##################################################
+
+"""
+Mantém presença viva: envia mensagens breves de acompanhamento sem exigir resposta.
+"""
+from app.agents.agente_base import AgenteBase
+
+class DomoPresenca(AgenteBase):
+    async def _gerar_resposta(self, telefone: str, mensagem_original: str) -> str | None:
+        return await self._carregar_mensagem_intent("PRESENCA_VIVA")
+
+
+########## End Path: ./agents/domo_presenca.py ##########
+
+
+##################################################
+########## Path: ./agents/agente_base.py
+##################################################
+
+# ===========================================================
+# Arquivo: agents/agente_base.py
+# Classe‑base para todos os agentes DOMO
+# – carrega intents de qualquer JSON em app/intents/
+# – disponibiliza utilitário de resposta por intent
+# ===========================================================
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Dict, Any, Optional
+
+from app.core.intents import obter_intent
+
+
+class AgenteBase:
+    """
+    Classe que todos os agentes devem herdar.
+    Each agent implementa _gerar_resposta().
+    """
+
+    def __init__(self, intent: str, sentimento: Dict[str, Any] | None = None) -> None:
+        self.intent = intent
+        self.sentimento = sentimento or {}
+        self.nome = self.__class__.__name__
+
+    # ------------------------------------------------------
+    async def executar(self, telefone: str, mensagem_original: str) -> None:
+        """
+        Método chamado pelo MCP. Gera texto e envia via mensageria.
+        """
+        from app.utils.mensageria import enviar_mensagem
+
+        resposta = await self._gerar_resposta(telefone, mensagem_original)
+        if resposta:
+            await enviar_mensagem(telefone, resposta)
+        else:
+            # opcional: logar “não respondeu”
+            import logging
+
+            logging.info("ℹ️  %s optou por não responder (intent=%s)", self.nome, self.intent)
+
+    # ------------------------------------------------------
+    async def _gerar_resposta(self, telefone: str, mensagem_original: str) -> str | None:
+        """
+        Cada agente concreto sobrescreve este método.
+        Deve devolver texto pronto para enviar ou None.
+        """
+        raise NotImplementedError
+
+    # ------------------------------------------------------
+    async def _carregar_mensagem_intent(self, intent_id: str) -> Optional[str]:
+        """
+        Busca resposta em qualquer arquivo intents/*.json
+        """
+        intent = obter_intent(intent_id)
+        return intent.get("resposta") if intent else None
+
+
+########## End Path: ./agents/agente_base.py ##########
+
+
+##################################################
+########## Path: ./agents/domo_orientador.py
+##################################################
+
+"""
+Responde dúvidas genéricas com base nas intents FAQ_*.
+"""
+from app.agents.agente_base import AgenteBase
+
+class DomoOrientador(AgenteBase):
+    async def _gerar_resposta(self, telefone: str, mensagem_original: str) -> str | None:
+        # Mapeamento simples: intenção já contém a chave FAQ_...
+        return await self._carregar_mensagem_intent(self.intent)
+
+
+########## End Path: ./agents/domo_orientador.py ##########
+
+
+##################################################
+########## Path: ./agents/domo_escalonador.py
+##################################################
+
+"""
+Detecta risco e avisa equipe humana. Não responde ao paciente.
+"""
+import logging, asyncio
+from app.agents.agente_base import AgenteBase
+from app.utils.mensageria import enviar_mensagem
+
+logger = logging.getLogger("famdomes.escalonador")
+
+EQUIPE_SUPORTE = ["+5511999990000"]  # ajuste para números reais
+
+class DomoEscalonador(AgenteBase):
+    async def _gerar_resposta(self, telefone: str, mensagem_original: str) -> str | None:
+        aviso = f"⚠️ Atenção: possível crise detectada do paciente {telefone}."
+        await asyncio.gather(*(enviar_mensagem(dest, aviso) for dest in EQUIPE_SUPORTE))
+        logger.info("Equipe humana notificada para %s", telefone)
+        return None          # nada enviado ao paciente
+
+
+
+########## End Path: ./agents/domo_escalonador.py ##########
+
+
+##################################################
+########## Path: ./agents/domo_followup.py
+##################################################
+
+from app.agents.agente_base import AgenteBase
+
+class DomoFollowUp(AgenteBase):
+    async def _gerar_resposta(self, telefone: str, mensagem_original: str):
+        return await self._carregar_mensagem_intent("FOLLOW_UP_24H")
+
+
+########## End Path: ./agents/domo_followup.py ##########
+
+
+##################################################
+########## Path: ./agents/domo_triagem.py
+##################################################
+
+"""
+Aplica as 12 perguntas de triagem, persistindo cursor por telefone.
+"""
+from pathlib import Path
+import json
+from app.agents.agente_base import AgenteBase
+from app.utils.contexto import obter_contexto, salvar_contexto
+
+TRILHA_ID = "POS_TRIAGEM"
+TRILHA_PATH = Path(__file__).resolve().parent.parent / "trilhas" / "trilha_pos_triagem.json"
+TRILHA = json.loads(TRILHA_PATH.read_text(encoding="utf-8"))["etapas"]
+TOTAL = len(TRILHA)
+
+class DomoTriagem(AgenteBase):
+    async def _gerar_resposta(self, telefone: str, mensagem_original: str) -> str | None:
+        ctx = obter_contexto(telefone)
+        cursor = ctx.get("trilha_cursor", {"id": TRILHA_ID, "etapa": 0})
+        if cursor["id"] != TRILHA_ID:
+            cursor = {"id": TRILHA_ID, "etapa": 0}
+
+        prox = cursor["etapa"] + 1
+        if prox > TOTAL:
+            # trilha concluída, muda estado
+            salvar_contexto(telefone, novo_estado="TRIAGEM_CONCLUIDA", trilha_cursor=None)
+            return "Obrigado! Triagem concluída. Em breve um profissional analisará suas respostas. 🙏"
+
+        pergunta = TRILHA[str(prox)]["pergunta"]
+        salvar_contexto(telefone, trilha_cursor={"id": TRILHA_ID, "etapa": prox})
+        return pergunta
+
+
+########## End Path: ./agents/domo_triagem.py ##########
+
+
+##################################################
+########## Path: ./agents/domo_monitor.py
+##################################################
+
+"""
+Avalia padrão emocional ao longo do tempo e decide escalonar ou ajustar trilha.
+Por ora, apenas registra – sem resposta.
+"""
+from app.agents.agente_base import AgenteBase
+from app.core.rastreamento import registrar_evento
+
+class DomoMonitor(AgenteBase):
+    async def _gerar_resposta(self, telefone: str, mensagem_original: str) -> str | None:
+        registrar_evento(telefone, etapa="monitor", dados=self.sentimento)
+        return None
+
+
+
+########## End Path: ./agents/domo_monitor.py ##########
+
+
+##################################################
+########## Path: ./models/pagamentos.py
+##################################################
+
+from pydantic import BaseModel
+
+class PagamentoRequest(BaseModel):
+    produto_id: str
+    email: str
+    telefone: str
+    redirect_url: str
+
+
+########## End Path: ./models/pagamentos.py ##########
+
+
+##################################################
+########## Path: ./models/atendimento.py
+##################################################
+
+from pydantic import BaseModel
+
+class MensagemIA(BaseModel):
+    mensagem: str
+    paciente_id: str
+    canal: str
+
+
+########## End Path: ./models/atendimento.py ##########
+
+
+##################################################
+########## Path: ./models/leads.py
+##################################################
+
+from pydantic import BaseModel
+from typing import Optional, Dict
+from datetime import datetime
+
+class Lead(BaseModel):
+    paciente_id: str
+    canal: str
+    mensagem_original: str
+    intent: str
+    entidades: Dict
+    risco: bool
+    timestamp: datetime
+    tipo: Optional[str] = "desconhecido"
+
+
+########## End Path: ./models/leads.py ##########
+
+
+##################################################
+########## Path: ./config.py
+##################################################
+
+"""
+Configurações centralizadas usando Pydantic.
+Qualquer módulo deve importar a instância `settings`
+em vez de ler variáveis de ambiente diretamente.
+"""
+import os
+from functools import lru_cache
+from pathlib import Path
+from pydantic_settings import BaseSettings
+from pydantic import Field, AnyHttpUrl,ConfigDict
+
+class Settings(BaseSettings):
+    # ➜ Aceita variáveis extras e carrega .env
+    model_config = ConfigDict(
+        extra='allow',               
+        env_file='.env',
+        env_file_encoding='utf-8',
+        case_sensitive=True,
+    )
+# ─── Novas linhas ───
+    BASE_DIR: str = Field(
+        default=str(Path(__file__).resolve().parent), env="BASE_DIR"
+    )
+    
+   
+    API_PORT: int = Field(8000, env="API_PORT")
+    LOG_LEVEL: str = Field("INFO", env="LOG_LEVEL")
+
+    MONGO_URI: str = Field(..., env="MONGO_URI")
+
+    WHATSAPP_API_URL: AnyHttpUrl = Field(..., env="WHATSAPP_API_URL")
+    WHATSAPP_TOKEN: str = Field(..., env="WHATSAPP_TOKEN")
+
+    OLLAMA_API_URL: AnyHttpUrl = Field(..., env="OLLAMA_API_URL")
+    OLLAMA_MODEL: str = Field("gemma:3b", env="OLLAMA_MODEL")
+
+    MCP_TIMEOUT_S: int = Field(10, env="MCP_TIMEOUT_S")
+
+@lru_cache
+def _cached_settings() -> Settings:
+    return Settings()
+
+settings: Settings = _cached_settings()
+
+globals().update({k: getattr(settings, k) for k in dir(settings) if k.isupper()})
+
+@lru_cache
+def _cached_settings() -> Settings:
+    return Settings()
+
+settings: Settings = _cached_settings()
+
+globals().update({k: v for k, v in settings.model_dump().items()})
+# --------------
+
+########## End Path: ./config.py ##########
+
+
+##################################################
+########## Path: ./core/intents.py
+##################################################
+
+# ===========================================================
+# carrega e pesquisa intents de TODOS os arquivos .json
+# ===========================================================
+from __future__ import annotations
+from pathlib import Path
+import json, re, difflib
+from functools import lru_cache
+from typing import Dict, Any, Tuple
+
+PASTA = Path(__file__).resolve().parents[1] / "intents"
+RGX_CLEAN = re.compile(r"[^a-z0-9 ]")
+
+def _normalizar(txt: str) -> str:
+    return RGX_CLEAN.sub("", txt.casefold())
+
+@lru_cache
+def _carga() -> Dict[str, Dict[str, Any]]:
+    dados: Dict[str, Dict[str, Any]] = {}
+    for arq in PASTA.glob("*.json"):
+        with arq.open(encoding="utf-8") as f:
+            dados.update(json.load(f))
+    # index de triggers normalizados
+    for k, v in dados.items():
+        v["triggers_norm"] = [_normalizar(t) for t in v.get("triggers", [])]
+    return dados
+
+# ---------- API pública ----------
+def obter_intent(id_intent: str) -> Dict[str, Any] | None:
+    return _carga().get(id_intent)
+
+def buscar_por_trigger(texto: str, limiar: float = 0.75) -> Tuple[str | None, float]:
+    txt_norm = _normalizar(texto)
+    melhor, score = None, 0.0
+    for intent_id, info in _carga().items():
+        for trg in info["triggers_norm"]:
+            if not trg:
+                continue
+            s = difflib.SequenceMatcher(None, txt_norm, trg).ratio()
+            if s > score:
+                melhor, score = intent_id, s
+    return (melhor, score) if score >= limiar else (None, score)
+
+
+########## End Path: ./core/intents.py ##########
+
+
+##################################################
+########## Path: ./core/scoring.py
+##################################################
+
+"""
+Score simples de lead (0‑6) para escolher pitch.
+"""
+import re
+
+PAT_URGENCIA = re.compile(r"\b(crise|desesperad[oa]|suic[ií]dio)\b", re.I)
+PAT_PAGANTE  = re.compile(r"\b(cart[aã]o|pix|particular)\b", re.I)
+PAT_NEG_PRECO = re.compile(r"\b(caro|muito caro|sem dinheiro|nao posso)\b", re.I)
+
+def score_lead(texto: str) -> int:
+    s = 0
+    if PAT_URGENCIA.search(texto):
+        s += 3
+    if PAT_PAGANTE.search(texto):
+        s += 2
+    if PAT_NEG_PRECO.search(texto):
+        s -= 2
+    return max(0, min(6, s))
+
+
+########## End Path: ./core/scoring.py ##########
+
+
+##################################################
+########## Path: ./core/ia_direct.py
+##################################################
+
+# ===========================================================
+# Gera resposta alternativa curta via Ollama local
+# ===========================================================
+from __future__ import annotations
+import httpx, logging
+from app.config import settings
+
+logger = logging.getLogger("famdomes.ia-fallback")
+
+async def gerar_resposta_ia(contexto: dict) -> str:
+    prompt = (
+        "Você é um vendedor empático. Responda em até 140 caracteres, "
+        "sem jargões técnicos, incentivando o próximo passo.\n\n"
+        f"{contexto}\nResposta:"
+    )
+    body = {"model": settings.OLLAMA_MODEL, "prompt": prompt, "stream": False}
+
+    try:
+        async with httpx.AsyncClient(timeout=20, follow_redirects=True) as cli:
+            r = await cli.post(f"{settings.OLLAMA_API_URL.rstrip('/')}/api/generate", json=body)
+            r.raise_for_status()
+            return r.json().get("response", "").strip()
+    except Exception as exc:
+        logger.warning("IA-fallback falhou: %s", exc)
+        return "Entendo! Quer mais detalhes ou ajuda humana?"
+
+
+########## End Path: ./core/ia_direct.py ##########
+
+
+##################################################
+########## Path: ./core/rastreamento.py
+##################################################
+
+"""
+Persistência de logs de decisão e telemetria.
+"""
+from datetime import datetime, timezone
+from pymongo import MongoClient
+from app.config import MONGO_URI
+import logging
+
+mongo = MongoClient(MONGO_URI)
+col_eventos = mongo["famdomes"]["eventos"]
+
+logger = logging.getLogger("famdomes.trace")
+
+def registrar_evento(telefone: str, *, etapa: str, dados: dict) -> None:
+    doc = {
+        "telefone": telefone,
+        "etapa": etapa,
+        "dados": dados,
+        "timestamp": datetime.now(timezone.utc),
+    }
+    try:
+        col_eventos.insert_one(doc)
+    except Exception as exc:  # pragma: no cover
+        logger.warning("Falha ao gravar evento em MongoDB: %s", exc)
+
+
+########## End Path: ./core/rastreamento.py ##########
+
+
+##################################################
+########## Path: ./core/mcp_orquestrador.py
+##################################################
+
+# ===========================================================
+# Orquestrador principal – versão completa com:
+# • fuzzy trigger antes da IA
+# • guard‑rail triagem
+# • scoring lead
+# • fallback generativo
+# ===========================================================
+from __future__ import annotations
+import logging
+from importlib import import_module
+from typing import Dict, Type
+
+from app.core.ia_analisador import detectar_intencao, analisar_sentimento
+from app.core.intents import buscar_por_trigger
+from app.core.scoring import score_lead
+from app.utils.contexto import obter_contexto, salvar_contexto
+from app.core.rastreamento import registrar_evento
+from app.agents.agente_base import AgenteBase
+
+logger = logging.getLogger("famdomes.mcp")
+
+_INTENT_MAP: Dict[str, str] = {
+    # clínicas
+    "ACOLHIMENTO": "app.agents.domo_escuta.DomoEscuta",
+    "PRESENCA_VIVA": "app.agents.domo_presenca.DomoPresenca",
+    "TRIAGEM_INICIAL": "app.agents.domo_triagem.DomoTriagem",
+    "ESCALONAR_HUMANO": "app.agents.domo_escalonador.DomoEscalonador",
+    # comerciais
+    "MICRO_COMPROMISSO": "app.agents.domo_comercial.DomoComercial",
+    "PITCH_PLANO3": "app.agents.domo_comercial.DomoComercial",
+    "PITCH_PLANO1": "app.agents.domo_comercial.DomoComercial",
+    "CALL_TO_ACTION": "app.agents.domo_comercial.DomoComercial",
+    "RECUSA_PRECO": "app.agents.domo_comercial.DomoComercial",
+    # FAQ
+    "FAQ_COMO_FUNCIONA": "app.agents.domo_orientador.DomoOrientador",
+    "FAQ_PAGAMENTO": "app.agents.domo_orientador.DomoOrientador",
+    "FAQ_CANCELAMENTO": "app.agents.domo_orientador.DomoOrientador",
+    "FAQ_ROBO": "app.agents.domo_orientador.DomoOrientador",
+    # fallback
+    "DEFAULT": "app.agents.domo_generativo.DomoGenerativo",
+}
+
+class MCPOrquestrador:
+    _inst: "MCPOrquestrador | None" = None
+    def __new__(cls):
+        if not cls._inst:
+            cls._inst = super().__new__(cls)
+        return cls._inst
+
+    # ------------------------------------------------------
+    async def processar_mensagem(self, tel: str, texto: str) -> None:
+        logger.info("MCP ▶ tel=%s texto=%s", tel, texto)
+        ctx = obter_contexto(tel)
+        estado = ctx.get("estado", "INICIAL")
+
+        # 1. fuzzy trigger
+        intent, _ = buscar_por_trigger(texto.lower())
+
+        # 2. IA se necessário
+        if not intent:
+            intent = await detectar_intencao(texto)
+
+        # 3. guard‑rails
+        if intent == "ACOLHIMENTO":
+            intent = "MICRO_COMPROMISSO"
+        if intent == "TRIAGEM_INICIAL" and ctx.get("estado") != "PAGAMENTO_OK":
+            intent = "FAQ_COMO_FUNCIONA"
+
+        # 4. sentimento + score
+        sentimento = await analisar_sentimento(texto)
+        s_lead = score_lead(texto) if estado in {"INICIAL", "MICRO"} else ctx.get("meta_conversa", {}).get("score_lead", 0)
+        salvar_contexto(tel, texto=texto, meta_conversa={"score_lead": s_lead})
+        registrar_evento(tel, etapa="análise", dados={"intent": intent, "score": s_lead})
+
+        # 5. agente
+        agente_cls = self._resolver_agente(intent)
+        agente: AgenteBase = agente_cls(intent=intent, sentimento=sentimento)
+
+        try:
+            await agente.executar(tel, texto)
+            registrar_evento(tel, etapa="execução", dados={"agente": agente.nome})
+        except Exception as exc:
+            logger.exception("MCP erro %s", exc)
+            registrar_evento(tel, etapa="erro", dados={"err": str(exc)})
+
+    # ------------------------------------------------------
+    def _resolver_agente(self, intent: str) -> Type[AgenteBase]:
+        caminho = _INTENT_MAP.get(intent, _INTENT_MAP["DEFAULT"])
+        mod_path, _, cls_name = caminho.rpartition(".")
+        return getattr(import_module(mod_path), cls_name)
+
+
+########## End Path: ./core/mcp_orquestrador.py ##########
+
+
+##################################################
+########## Path: ./core/scheduler.py
+##################################################
+
+"""
+Scheduler assíncrono (apscheduler) para tarefas recorrentes.
+"""
+import asyncio, logging
+from datetime import datetime, timedelta, timezone
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from app.utils.contexto import obter_contexto
+from app.agents.domo_followup import DomoFollowUp
+
+logger = logging.getLogger("famdomes.scheduler")
+sched = AsyncIOScheduler()
+
+async def _job_followup():
+    limite = datetime.now(timezone.utc) - timedelta(hours=24)
+    from pymongo import MongoClient
+    from app.config import MONGO_URI
+    mongo = MongoClient(MONGO_URI)
+    col = mongo["famdomes"]["contextos"]
+
+    # contexto em PITCH ou CTA sem pagamento há >24 h
+    filtro = {
+        "estado": {"$in": ["PITCH", "CTA"]},
+        "ts": {"$lt": limite}
+    }
+    for ctx in col.find(filtro):
+        tel = ctx["tel"]
+        logger.info("Follow‑up 24 h → %s", tel)
+        await DomoFollowUp(intent="FOLLOW_UP_24H").executar(telefone=tel, mensagem_original="")
+
+def iniciar():
+    sched.add_job(_job_followup, "interval", hours=1, id="followup24h")
+    sched.start()
+
+
+########## End Path: ./core/scheduler.py ##########
+
+
+##################################################
+########## Path: ./core/metrics.py
+##################################################
+
+"""
+Coleta KPIs e expõe para Prometheus + JSON.
+"""
+from datetime import datetime, timedelta, timezone
+from pymongo import MongoClient
+from prometheus_client import Gauge, generate_latest, CONTENT_TYPE_LATEST
+
+from app.config import MONGO_URI
+
+# ---------- Gauges ----------
+LEADS         = Gauge("domo_leads_total", "Leads captados nas últimas 24h")
+QUALIFICADOS  = Gauge("domo_qualificados_total", "Leads com score >=2 últimas 24h")
+PAGOS         = Gauge("domo_pagamentos_total", "Pagamentos confirmados últimas 24h")
+TEMPO_PG_SECS = Gauge("domo_tempo_medio_pg_segundos", "Tempo médio lead→pagamento (s)")
+
+# ---------- Coleta ----------
+def atualizar():
+    mongo = MongoClient(MONGO_URI)
+    ctx   = mongo["famdomes"]["contextos"]
+
+    ini = datetime.now(timezone.utc) - timedelta(days=1)
+
+    # Leads = primeira interação nas 24h
+    leads = ctx.count_documents({"ts": {"$gt": ini}, "interacoes": 1})
+    LEADS.set(leads)
+
+    # Qualificados = score_lead >=2
+    qual = ctx.count_documents({"ts": {"$gt": ini}, "meta_conversa.score_lead": {"$gte": 2}})
+    QUALIFICADOS.set(qual)
+
+    # Pagos
+    pagos = ctx.count_documents({"ts": {"$gt": ini}, "estado": "PAGAMENTO_OK"})
+    PAGOS.set(pagos)
+
+    # Tempo médio até pagamento
+    pipeline = [
+        {"$match": {"estado": "PAGAMENTO_OK", "ts": {"$gt": ini}}},
+        {"$project": {"delta": {"$subtract": ["$ts", "$criado_em"]}}},
+        {"$group": {"_id": None, "avg": {"$avg": "$delta"}}},
+    ]
+    res = list(ctx.aggregate(pipeline))
+    TEMPO_PG_SECS.set(res[0]["avg"] / 1000 if res else 0)  # ms→s
+
+def prometheus_response():
+    atualizar()
+    return generate_latest(), CONTENT_TYPE_LATEST
+
+def json_response():
+    atualizar()
+    return {
+        "leads": LEADS.collect()[0].samples[0].value,
+        "qualificados": QUALIFICADOS.collect()[0].samples[0].value,
+        "pagamentos": PAGOS.collect()[0].samples[0].value,
+        "tempo_medio_pg_s": TEMPO_PG_SECS.collect()[0].samples[0].value,
+    }
+
+
+########## End Path: ./core/metrics.py ##########
+
+
+##################################################
+########## Path: ./core/ia_analisador.py
+##################################################
+
+# ===========================================================
+# Arquivo: core/ia_analisador.py
+# ===========================================================
+from __future__ import annotations
+
+import httpx, json, logging
+from typing import Dict
+from app.config import settings
+
+logger = logging.getLogger("famdomes.ia")
+
+
+async def _chamar_ollama(prompt: str) -> str | None:
+    url = f"{str(settings.OLLAMA_API_URL).rstrip('/')}/api/generate"
+    body = {"model": settings.OLLAMA_MODEL, "prompt": prompt, "stream": False}
+
+    try:
+        async with httpx.AsyncClient(timeout=settings.MCP_TIMEOUT_S) as cli:
+            resp = await cli.post(url, json=body)
+        resp.raise_for_status()
+        return resp.json().get("response")
+    except Exception as exc:  # pragma: no cover
+        logger.warning("OLLAMA: ❌ %s", exc)
+        return None
+
+
+async def detectar_intencao(texto: str) -> str:
+    sistema = (
+        "Você é um classificador. Responda SOMENTE com uma "
+        "das opções: ESCALONAR_HUMANO, TRIAGEM_INICIAL, PRESENCA_VIVA, ACOLHIMENTO."
+    )
+    resp = await _chamar_ollama(f"{sistema}\n\nUsuário: {texto}\nIntenção:")
+    intent = (resp or "").strip().split()[0].upper()
+    return intent if intent in {"ESCALONAR_HUMANO", "TRIAGEM_INICIAL", "PRESENCA_VIVA"} else "ACOLHIMENTO"
+
+
+async def analisar_sentimento(texto: str) -> Dict[str, float]:
+    prompt = (
+        "Avalie o sentimento do texto em JSON no formato "
+        "{'positivo':0‑1,'negativo':0‑1,'neutro':0‑1}:\n" + texto
+    )
+    resp = await _chamar_ollama(prompt)
+    try:
+        dados = json.loads(resp) if resp else {}
+        if all(k in dados for k in ("positivo", "negativo", "neutro")):
+            return dados
+    except Exception:
+        pass
+    logger.warning("Sentimento inválido – usando fallback neutro.")
+    return {"positivo": 0.33, "negativo": 0.33, "neutro": 0.34}
+
+
+########## End Path: ./core/ia_analisador.py ##########
+
+

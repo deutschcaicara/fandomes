@@ -1,0 +1,51 @@
+.
+├── ./.env
+├── ./.env.example
+├── ./app
+│   ├── ./app/config.py
+│   ├── ./app/main.py
+│   ├── ./app/models
+│   │   ├── ./app/models/atendimento.py
+│   │   ├── ./app/models/intents.py
+│   │   └── ./app/models/pagamentos.py
+│   ├── ./app/routes
+│   │   ├── ./app/routes/agendamento.py
+│   │   ├── ./app/routes/followup.py
+│   │   ├── ./app/routes/ia.py
+│   │   ├── ./app/routes/ia_comandos.py
+│   │   ├── ./app/routes/pagamentos.py
+│   │   ├── ./app/routes/painel.py
+│   │   ├── ./app/routes/rocketchat.py
+│   │   ├── ./app/routes/stripe.py
+│   │   └── ./app/routes/whatsapp.py
+│   └── ./app/utils
+│       ├── ./app/utils/agenda.py
+│       ├── ./app/utils/db.py
+│       ├── ./app/utils/followup.py
+│       ├── ./app/utils/mensageria.py
+│       ├── ./app/utils/ollama.py
+│       └── ./app/utils/risco.py
+├── ./backend_famdomes_completo.txt
+├── ./codigo_completo_fastapi.txt
+├── ./estrutura_backend_famdomes.txt
+├── ./estrutura_famdomes.txt
+├── ./estrutura_fastapi.txt
+├── ./logs
+├── ./requirements.txt
+├── ./scripts
+│   └── ./scripts/check_followup.py
+└── ./scriptsinstall
+    ├── ./scriptsinstall/codigos_completos.txt
+    ├── ./scriptsinstall/corrigir_imports_utils.sh
+    ├── ./scriptsinstall/estrutura_famdomes.txt
+    ├── ./scriptsinstall/healtcheck_auth.sh
+    ├── ./scriptsinstall/healtcheck_endpoints.sh
+    ├── ./scriptsinstall/instalar_followup_cron.sh
+    ├── ./scriptsinstall/payload_criar_sessao.json
+    ├── ./scriptsinstall/payload_ia.json
+    ├── ./scriptsinstall/payload_stripe_webhook.json
+    ├── ./scriptsinstall/payload_whatsapp.json
+    ├── ./scriptsinstall/testar_fluxos.sh
+    └── ./scriptsinstall/verificar_fastapi_status.sh
+
+8 directories, 41 files

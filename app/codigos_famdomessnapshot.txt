@@ -1,0 +1,1306 @@
+FAQ_RESPOSTAS = {
+    "dependencia_quimica": (
+        "Dependência química é uma doença crônica caracterizada pelo uso compulsivo de substâncias, "
+        "apesar das consequências negativas, afetando o cérebro e o comportamento."
+    ),
+    "identificar_dependencia": (
+        "Sinais incluem uso constante da substância, dificuldade em parar, negligência nas responsabilidades, "
+        "mudanças bruscas de comportamento e sintomas de abstinência."
+    ),
+    "tipos_internacao": (
+        "Existem três tipos principais de internação: voluntária (com consentimento), involuntária "
+        "(solicitada pela família) e compulsória (por ordem judicial)."
+    ),
+    "como_funciona_tratamento": (
+        "O tratamento em clínica inclui desintoxicação supervisionada, terapias individuais e em grupo, "
+        "atividades terapêuticas e acompanhamento médico constante."
+    ),
+    "duracao_tratamento": (
+        "Normalmente, o tratamento dura entre 3 e 6 meses, podendo variar de acordo com a situação específica."
+    ),
+    "custo_tratamento": (
+        "Os valores variam dependendo dos serviços e acomodações. Para detalhes exatos, podemos agendar uma avaliação."
+    ),
+    "recusa_ajuda": (
+        "Se a pessoa não aceita ajuda voluntariamente, pode ser considerado o processo de internação involuntária "
+        "com suporte legal e médico especializado."
+    ),
+    "apoio_familiar": (
+        "Famílias podem ajudar oferecendo suporte emocional, participando das terapias familiares e estabelecendo limites claros."
+    ),
+    "sobre_caps": (
+        "O CAPS é um Centro de Atenção Psicossocial que oferece tratamento especializado em saúde mental e dependência química."
+    ),
+    "como_agendar": (
+        "Você pode agendar facilmente uma consulta entrando em contato conosco pelo WhatsApp ou pelo nosso site oficial."
+    ),
+}
+import asyncio
+from app.utils.mensageria import enviar_mensagem
+import logging
+
+# Perguntas a serem feitas após o pagamento (pode expandir)
+PERGUNTAS = [
+    "Vamos começar com algumas perguntas rápidas para ajudar nosso médico a entender melhor. Qual o nome completo da pessoa que será avaliada?",
+    "Qual a idade aproximada da pessoa?",
+    "Qual o grau de parentesco com você (filho, esposa, irmão, etc)?",
+    "Quais substâncias a pessoa está usando atualmente (álcool, cocaína, crack, etc)?",
+    "Há quanto tempo o uso começou ou se agravou?",
+    "A pessoa já passou por outros tratamentos? Se sim, quais?",
+    "Existe alguma condição médica ou psicológica importante a considerar?",
+    "Qual cidade e estado onde a pessoa está agora?"
+]
+
+# Inicia o envio sequencial das perguntas (pode evoluir para FSM depois)
+async def iniciar_questionario(telefone: str):
+    logging.info(f"📋 Iniciando questionário pós-pagamento para {telefone}")
+    for pergunta in PERGUNTAS:
+        await enviar_mensagem(telefone, pergunta)
+        await asyncio.sleep(2.0)  # pequeno intervalo entre perguntasimport httpx
+import logging
+from app.config import OLLAMA_API_URL, OLLAMA_MODEL
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+async def chamar_ollama(prompt: str, telefone: str) -> tuple[str, list]:
+    payload = {
+        "model": OLLAMA_MODEL,
+        "prompt": prompt,
+        "stream": False
+    }
+    headers = {"Content-Type": "application/json"}
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            logging.info(f"Enviando prompt para Ollama (modelo: {OLLAMA_API_URL}/{OLLAMA_MODEL})...")
+            response = await client.post(f"{OLLAMA_API_URL}/api/generate", json=payload, headers=headers)
+            response.raise_for_status()
+            dados = response.json()
+            logging.info("✅ Resposta recebida da IA (OLLAMA).")
+            resposta_bruta = dados.get("response", "⚠️ Erro interno na IA.")
+            # Aqui você pode fazer qualquer limpeza necessária na resposta
+            tokens = []  # Se houver tokens, adicione-os
+            return resposta_bruta, tokens
+    except httpx.TimeoutException as e:
+        logging.error(f"❌ Erro: Timeout ({str(e)})")
+        return "⚠️ Desculpe, demorei muito para pensar. Tente novamente.", []
+    except httpx.HTTPStatusError as e:
+        logging.error(f"❌ Erro: HTTP {e.response.status_code} - {e.response.text}")
+        return f"⚠️ Ocorreu um erro interno ({e.response.status_code}). Por favor, tente mais tarde.", []
+    except Exception as e:
+        logging.exception("❌ Erro desconhecido ao chamar Ollama:")
+        return "⚠️ Erro inesperado. Tente novamente mais tarde.", []
+import os
+from datetime import datetime
+import logging
+from pymongo import MongoClient
+from app.config import MONGO_URI
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+mongo = MongoClient(MONGO_URI)
+db = mongo["famdomes"]
+colecao_historico = db["respostas_ia"]
+
+# Ajuste o caminho conforme sua estrutura – certifique-se de que o arquivo existe ou use o fallback
+CAMINHO_PROMPT_TXT = os.path.join(os.path.dirname(__file__), "..", "PROMPT_MESTRE_FAMDOMES_CORRIGIDO.txt")
+
+def carregar_prompt_mestre() -> str:
+    try:
+        with open(CAMINHO_PROMPT_TXT, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    except Exception as e:
+        logging.error(f"❌ ERRO ao carregar prompt mestre: {e}")
+        return (
+            "Você é um assistente virtual especializado em saúde mental e dependência química. "
+            "Responda com empatia, clareza e objetividade, seguindo as diretrizes de atendimento."
+        )
+
+def construir_prompt(telefone: str, pergunta_atual: str) -> str:
+    prompt_mestre = carregar_prompt_mestre()
+    trecho_historico = ""
+    historico_recente = []
+    if colecao_historico is not None:
+        try:
+            historico_recente = list(
+                colecao_historico.find({"telefone": telefone}).sort("criado_em", -1).limit(10)
+            )
+            historico_recente.reverse()
+            pares_formatados = []
+            mensagem_usuario_pendente = None
+            for item in historico_recente:
+                if 'mensagem' in item:
+                    mensagem_usuario_pendente = item['mensagem']
+                elif 'resposta' in item and mensagem_usuario_pendente:
+                    pares_formatados.append(f"Usuário: {mensagem_usuario_pendente}\nAssistente: {item['resposta']}")
+                    mensagem_usuario_pendente = None
+            trecho_historico = "\n".join(pares_formatados)
+            if not trecho_historico:
+                trecho_historico = "Nenhuma conversa anterior registrada."
+        except Exception as e:
+            logging.error(f"❌ ERRO ao buscar histórico para {telefone}: {e}")
+            trecho_historico = "Erro ao carregar histórico."
+    else:
+        trecho_historico = "Histórico indisponível (sem conexão DB)."
+    
+    agora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    prompt_final = f"""{prompt_mestre}
+
+---
+Contexto Atual:
+Data/Hora: {agora}
+Telefone: {telefone}
+---
+Histórico da Conversa:
+{trecho_historico}
+---
+Nova Mensagem do Usuário:
+{pergunta_atual.strip()}
+---
+Instruções para sua Resposta:
+1. Responda com empatia, clareza e objetividade.
+2. Se apropriado, sugira o agendamento.
+3. Use no máximo 400 caracteres.
+---
+Assistente:"""
+    logging.info(f"Prompt construído para {telefone}. Tamanho: {len(prompt_final)} caracteres.")
+    return prompt_final
+# utils/mensageria.py
+import httpx
+from app.config import WHATSAPP_API_URL, WHATSAPP_TOKEN
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+async def enviar_mensagem(telefone: str, mensagem: str) -> dict:
+    """Envia uma mensagem de texto simples via WhatsApp Cloud API."""
+    if not WHATSAPP_API_URL or not WHATSAPP_TOKEN:
+        logging.error("❌ ERRO: Configurações da API do WhatsApp ausentes (URL ou Token).")
+        return {"erro": "Configuração da API do WhatsApp incompleta."}
+    if not telefone or not mensagem:
+        logging.warning("⚠️ Tentativa de enviar mensagem vazia ou sem destinatário.")
+        return {"erro": "Telefone ou mensagem ausente."}
+
+    payload = {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": telefone,
+        "type": "text",
+        "text": {"preview_url": False, "body": mensagem} # Desabilitar preview_url é geralmente bom para chatbots
+    }
+    headers = {
+        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    # Timeout razoável para APIs externas
+    timeout = httpx.Timeout(15.0, connect=5.0)
+
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            logging.info(f"Enviando mensagem para {telefone}...")
+            response = await client.post(WHATSAPP_API_URL, json=payload, headers=headers)
+            response.raise_for_status() # Levanta erro para 4xx/5xx
+
+            logging.info(f"✅ Mensagem enviada para {telefone}. Status: {response.status_code}")
+            # logging.debug(f"Resposta da API WhatsApp: {response.text}")
+            return {"status": "enviado", "code": response.status_code, "retorno": response.text}
+
+    except httpx.HTTPStatusError as e:
+        logging.error(f"❌ ERRO HTTP ao enviar mensagem para {telefone}: Status {e.response.status_code}, Resposta: {e.response.text}")
+        return {"status": "erro_api", "code": e.response.status_code, "erro": e.response.text}
+    except httpx.TimeoutException as e:
+        logging.error(f"❌ ERRO: Timeout ao enviar mensagem para {telefone}: {str(e)}")
+        return {"status": "erro_timeout", "erro": str(e)}
+    except httpx.RequestError as e:
+        logging.error(f"❌ ERRO de Conexão ao enviar mensagem para {telefone}: {str(e)}")
+        return {"status": "erro_conexao", "erro": str(e)}
+    except Exception as e:
+        logging.exception(f"❌ ERRO inesperado ao enviar mensagem para {telefone}:")
+        return {"status": "erro_desconhecido", "erro": str(e)}
+
+async def enviar_template_feedback(
+    telefone: str,
+    nome_template: str = "feedback", # Nome do template configurado na Meta
+    nome_clinica: str = "Nome Padrão Clínica",
+    tipo_servico: str = "Atendimento",
+    tipo_pesquisa: str = "Satisfação",
+    tipo_interacao: str = "Consulta"
+):
+    """Envia um template de mensagem do WhatsApp (ex: feedback com botão de fluxo)."""
+    if not WHATSAPP_API_URL or not WHATSAPP_TOKEN:
+        logging.error("❌ ERRO: Configurações da API do WhatsApp ausentes (URL ou Token).")
+        return {"erro": "Configuração da API do WhatsApp incompleta."}
+
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": telefone,
+        "type": "template",
+        "template": {
+            "name": nome_template,
+            "language": {"code": "pt_BR"}, # Certifique-se que o idioma corresponde ao template aprovado
+            "components": [
+                {
+                    "type": "body",
+                    "parameters": [
+                        {"type": "text", "text": nome_clinica},     # {{1}}
+                        {"type": "text", "text": tipo_servico},     # {{2}}
+                        {"type": "text", "text": tipo_pesquisa},    # {{3}}
+                        {"type": "text", "text": tipo_interacao}    # {{4}}
+                    ]
+                },
+                { # Exemplo de botão de fluxo (ajuste conforme seu template)
+                    "type": "button",
+                    "sub_type": "flow", # Ou "quick_reply", "url", etc.
+                    "index": "0", # Índice do botão no template
+                    # "parameters": [] # Parâmetros específicos do botão, se houver
+                }
+                # Adicione outros componentes (header, buttons) se seu template os tiver
+            ]
+        }
+    }
+    headers = {
+        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    timeout = httpx.Timeout(15.0, connect=5.0)
+
+    try:
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            logging.info(f"Enviando template '{nome_template}' para {telefone}...")
+            response = await client.post(WHATSAPP_API_URL, json=payload, headers=headers)
+            response.raise_for_status()
+
+            logging.info(f"✅ Template '{nome_template}' enviado para {telefone}. Status: {response.status_code}")
+            # logging.debug(f"Resposta da API WhatsApp (Template): {response.text}")
+            return {"status": "template_enviado", "code": response.status_code, "retorno": response.text}
+
+    except httpx.HTTPStatusError as e:
+        logging.error(f"❌ ERRO HTTP ao enviar template para {telefone}: Status {e.response.status_code}, Resposta: {e.response.text}")
+        return {"status": "erro_api", "code": e.response.status_code, "erro": e.response.text}
+    except httpx.TimeoutException as e:
+        logging.error(f"❌ ERRO: Timeout ao enviar template para {telefone}: {str(e)}")
+        return {"status": "erro_timeout", "erro": str(e)}
+    except httpx.RequestError as e:
+        logging.error(f"❌ ERRO de Conexão ao enviar template para {telefone}: {str(e)}")
+        return {"status": "erro_conexao", "erro": str(e)}
+    except Exception as e:
+        logging.exception(f"❌ ERRO inesperado ao enviar template para {telefone}:")
+        return {"status": "erro_desconhecido", "erro": str(e)}from pymongo import MongoClient
+from app.config import MONGO_URI
+from datetime import datetime
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+try:
+    mongo = MongoClient(MONGO_URI)
+    db = mongo["famdomes"]
+    contextos_db = db["contexto_conversa"]
+    logging.info("Conexão com MongoDB estabelecida para Contexto.")
+except Exception as e:
+    logging.error(f"❌ ERRO ao conectar com MongoDB para Contexto: {e}")
+    mongo = None
+    contextos_db = None
+
+def salvar_contexto(telefone: str, dados_atualizacao: dict):
+    if contextos_db is None or not telefone or not isinstance(dados_atualizacao, dict):
+        logging.error("❌ Falha ao salvar contexto.")
+        return False
+    try:
+        contexto_anterior = contextos_db.find_one({"telefone": telefone}) or {}
+
+        # 🔁 Fundir metadados caso existam
+        if "meta_conversa" in dados_atualizacao and "meta_conversa" in contexto_anterior:
+            dados_atualizacao["meta_conversa"] = atualizar_meta_conversa(
+                contexto_anterior["meta_conversa"],
+                dados_atualizacao["meta_conversa"]
+            )
+
+        contextos_db.update_one(
+            {"telefone": telefone},
+            {
+                "$set": dados_atualizacao,
+                "$currentDate": {"ultima_atualizacao": True},
+                "$setOnInsert": {"telefone": telefone, "criado_em": datetime.utcnow()}
+            },
+            upsert=True
+        )
+        logging.info(f"📌 Contexto atualizado para {telefone}.")
+        return True
+    except Exception as e:
+        logging.error(f"❌ ERRO ao salvar contexto para {telefone}: {e}")
+        return False
+
+def atualizar_meta_conversa(meta_antiga: dict, meta_nova: dict) -> dict:
+    """ Mescla campos do novo JSON com os anteriores, preservando dados já extraídos """
+    resultado = meta_antiga.copy()
+
+    for chave, valor in meta_nova.items():
+        if not valor:
+            continue
+        if isinstance(valor, list):
+            resultado[chave] = list(set(resultado.get(chave, []) + valor))
+        elif chave not in resultado or not resultado[chave] or resultado[chave] == "desconhecido":
+            resultado[chave] = valor
+    return resultado
+
+def obter_contexto(telefone: str) -> dict:
+    if contextos_db is None or not telefone:
+        return {}
+    try:
+        return contextos_db.find_one({"telefone": telefone}) or {}
+    except Exception as e:
+        logging.error(f"❌ ERRO ao obter contexto para {telefone}: {e}")
+        return {}
+
+def limpar_contexto(telefone: str):
+    if contextos_db is None or not telefone:
+        return False
+    try:
+        result = contextos_db.delete_one({"telefone": telefone})
+        return result.deleted_count > 0
+    except Exception as e:
+        logging.error(f"❌ ERRO ao limpar contexto para {telefone}: {e}")
+        return False
+
+def salvar_resposta_ia(telefone: str, canal: str, mensagem: str, resultado: dict):
+    try:
+        doc = {
+            "telefone": telefone,
+            "canal": canal,
+            "mensagem": mensagem,
+            "resposta": resultado.get("resposta"),
+            "entidades": resultado.get("entidades", {}),
+            "risco": resultado.get("risco", False),
+            "intent": resultado.get("intent", "desconhecida"),
+            "criado_em": datetime.utcnow()
+        }
+        db["respostas_ia"].insert_one(doc)
+        logging.info(f"💾 Resposta da IA salva em respostas_ia para {telefone}.")
+    except Exception as e:
+        logging.error(f"❌ ERRO ao salvar resposta IA: {e}")
+import logging
+import json
+import re
+from app.utils.ollama import chamar_ollama
+from app.utils.contexto import salvar_resposta_ia, obter_contexto, salvar_contexto
+from app.routes.ia import processar_comando
+from app.config import BASE_DIR
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+CAMINHO_PROMPT_MESTRE = f"{BASE_DIR}/utils/mestre_famdomes.txt"
+
+MENSAGEM_INICIAL = '''🧠 Olá, eu sou da equipe FAMDOMES.
+
+Receber sua mensagem já mostra que você se importa com quem ama — e isso é um primeiro passo muito importante.
+
+Nosso trabalho é acolher famílias que estão vivendo situações difíceis com álcool, drogas ou crises emocionais.
+
+Se quiser, posso te explicar como funciona nossa consulta médica. É rápida, sigilosa e pode te dar a orientação que está procurando.
+
+Posso seguir?'''
+
+RESPOSTA_EXPLICACAO_CONSULTA = '''👨‍⚕️ A consulta médica do FAMDOMES é online, com um profissional que entende profundamente casos de dependência química e sofrimento familiar.
+
+📌 Ela serve para avaliar a situação, oferecer um laudo se necessário, orientar o melhor caminho e — se for o caso — encaminhar para uma clínica parceira com segurança e sigilo.
+
+💳 O valor é R$100 e pode ser pago online de forma rápida.
+
+Posso te enviar o link para agendar agora?'''
+
+RESPOSTAS_AFIRMATIVAS = [
+    "sim", "claro", "quero", "vamos", "ok", "pode ser", "tá bom", "aceito",
+    "sim por favor", "sim quero", "com certeza", "tô dentro", "pode sim", "por favor"
+]
+
+def carregar_prompt_mestre():
+    with open(CAMINHO_PROMPT_MESTRE, "r", encoding="utf-8") as f:
+        return f.read()
+
+async def processar_mensagem(mensagem: str, telefone: str, canal: str) -> dict:
+    contexto = obter_contexto(telefone)
+    ultima = contexto.get("resposta_esperada")
+    texto = mensagem.strip().lower()
+
+    # ✅ Confirmação baseada na última pergunta
+    ultima_pergunta = contexto.get("ultima_pergunta", "").lower()
+    if (ultima is None or ultima == "explicacao_consulta") and texto in RESPOSTAS_AFIRMATIVAS:
+        if any(p in ultima_pergunta for p in [
+            "deseja agendar", "posso agendar", "vamos agendar",
+            "te ajudar a agendar", "podemos agendar", "agendar essa consulta"
+        ]):
+            salvar_contexto(telefone, {
+                "resposta_esperada": None,
+                "ultima_pergunta": None
+            })
+            resposta = await processar_comando({
+                "telefone": telefone,
+                "nome": contexto.get("nome", "Paciente"),
+                "comando": "quero agendar"
+            })
+            return {
+                "intent": "quero_agendar",
+                "entidades": {},
+                "risco": False,
+                "resposta": resposta.get("mensagem", "✅ Link gerado.")
+            }
+
+    # 🟢 Primeira interação
+    if not contexto or not contexto.get("iniciado"):
+        salvar_contexto(telefone, {
+            "iniciado": True,
+            "resposta_esperada": "mensagem_inicial",
+            "ultima_pergunta": "Quer que eu te explique como funciona a consulta?",
+            "nome": "Paciente"
+        })
+        return {
+            "intent": "mensagem_inicial",
+            "entidades": {},
+            "risco": False,
+            "resposta": MENSAGEM_INICIAL
+        }
+
+    # ✅ Confirmação para explicação da consulta
+    if ultima == "mensagem_inicial" and texto in RESPOSTAS_AFIRMATIVAS:
+        salvar_contexto(telefone, {
+            "resposta_esperada": "explicacao_consulta",
+            "ultima_pergunta": "Posso te enviar o link para agendar agora?"
+        })
+        return {
+            "intent": "explicacao_consulta",
+            "entidades": {},
+            "risco": False,
+            "resposta": RESPOSTA_EXPLICACAO_CONSULTA
+        }
+
+    if ultima == "explicacao_consulta" and texto in RESPOSTAS_AFIRMATIVAS:
+        salvar_contexto(telefone, {
+            "resposta_esperada": None,
+            "ultima_pergunta": None
+        })
+        resposta = await processar_comando({
+            "telefone": telefone,
+            "nome": contexto.get("nome", "Paciente"),
+            "comando": "quero agendar"
+        })
+        return {
+            "intent": "quero_agendar",
+            "entidades": {},
+            "risco": False,
+            "resposta": resposta.get("mensagem", "✅ Link gerado.")
+        }
+
+    # 🔍 Prompt com contexto
+    prompt_base = carregar_prompt_mestre()
+    pergunta_anterior = contexto.get("ultima_pergunta", "")
+    meta_conversa = contexto.get("meta_conversa", {})
+    contexto_extra = json.dumps(meta_conversa, ensure_ascii=False, indent=2)
+
+    mensagem_completa = (
+        f"Mensagem anterior: {pergunta_anterior}\n"
+        f"Contexto conhecido: {contexto_extra}\n"
+        f"Mensagem atual: {mensagem.strip()}"
+    )
+    prompt_completo = prompt_base.replace("{mensagem}", mensagem_completa)
+
+    try:
+        resposta_ia, _ = await chamar_ollama(prompt_completo, telefone)
+        logging.info(f"💬 Resposta IA:\n{resposta_ia}")
+
+        # 🔎 Tenta extrair JSON ao final
+        json_extraido = {}
+        resposta_textual = resposta_ia.strip()
+
+        match = re.search(r"\{[\s\S]*\}", resposta_ia)
+        if match:
+            try:
+                json_extraido = json.loads(match.group())
+                resposta_textual = resposta_ia.replace(match.group(), "").strip().replace("```json", "").replace("```", "").strip()
+            except json.JSONDecodeError:
+                logging.warning("⚠️ JSON inválido no final da resposta da IA.")
+
+        resultado = {
+            "intent": "desconhecida",
+            "entidades": json_extraido,
+            "risco": json_extraido.get("risco", False),
+            "resposta": resposta_textual
+        }
+
+        salvar_resposta_ia(telefone, canal, mensagem, resultado)
+        salvar_contexto(telefone, {
+            "resposta_esperada": None,
+            "ultima_pergunta": resultado["resposta"],
+            "ultima_intent": resultado["intent"],
+            "meta_conversa": json_extraido
+        })
+
+        return resultado
+
+    except Exception as e:
+        logging.error(f"❌ Erro ao processar mensagem: {e}")
+        return {
+            "intent": "erro_nlu",
+            "entidades": {},
+            "risco": False,
+            "resposta": "🤖 Oi! Houve um erro aqui ao pensar. Tenta de novo por favor?"
+        }
+# utils/risco.py
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Lista de palavras/frases críticas (ajuste conforme necessário)
+# Cuidado: Pode gerar falsos positivos/negativos. Avalie e refine.
+PALAVRAS_CRITICAS = [
+    "suicídio", "me matar", "quero morrer", "não aguento mais", "acabar com tudo",
+    "sumir", "desaparecer", "sem esperança", "adeus mundo", "não quero viver",
+    # Adicionar termos relacionados a auto-mutilação se aplicável
+    # Adicionar termos relacionados a ameaças a terceiros se aplicável
+]
+
+# Adicionar palavras/frases que indicam URGÊNCIA MÉDICA (Overdose, etc.)
+PALAVRAS_URGENCIA = [
+    "overdose", "passando muito mal", "não consigo respirar", "dor no peito forte",
+    "desmaiado", "convulsão", "sangrando muito", "veneno",
+    # Adicione outros termos relevantes para emergências médicas
+]
+
+def analisar_risco(texto: str) -> dict:
+    """
+    Analisa o texto em busca de indicadores de risco (suicídio, urgência médica).
+    Retorna um dicionário com booleanos para 'risco_vida' e 'urgencia_medica'.
+    """
+    if not texto:
+        return {"risco_vida": False, "urgencia_medica": False}
+
+    texto_lower = texto.lower()
+    risco_vida_detectado = any(p in texto_lower for p in PALAVRAS_CRITICAS)
+    urgencia_medica_detectada = any(u in texto_lower for u in PALAVRAS_URGENCIA)
+
+    if risco_vida_detectado:
+        logging.warning(f"🚨 RISCO DE VIDA DETECTADO no texto: '{texto[:100]}...'")
+    if urgencia_medica_detectada:
+        logging.warning(f"🚑 URGÊNCIA MÉDICA DETECTADA no texto: '{texto[:100]}...'")
+
+    return {
+        "risco_vida": risco_vida_detectado,
+        "urgencia_medica": urgencia_medica_detectada
+    }# utils/agenda.py
+from datetime import datetime, timedelta, timezone
+from pymongo import MongoClient
+from app.config import MONGO_URI
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Constantes de configuração da agenda
+DURACAO_CONSULTA_MINUTOS = 20
+MAX_TENTATIVAS_AGENDAMENTO = 500 # Limite de blocos a procurar (~6 dias úteis)
+HORARIO_OPERACAO_INICIO = 9 # 9:00
+HORARIO_OPERACAO_FIM = 18  # 18:00 (não agenda às 18:00, último é 17:40)
+
+# Alerta: Operações síncronas de DB em rotas async podem bloquear o event loop.
+try:
+    mongo = MongoClient(MONGO_URI)
+    db = mongo["famdomes"]
+    consultas_db = db["consultas_agendadas"]
+    # Criar índice para garantir que não haja duas consultas no mesmo horário
+    consultas_db.create_index("horario", unique=True)
+    logging.info("Conexão com MongoDB estabelecida para Agenda.")
+except Exception as e:
+    logging.error(f"❌ ERRO ao conectar com MongoDB para Agenda: {e}")
+    mongo = None
+    consultas_db = None
+
+def _proximo_horario_util(inicio_base: datetime) -> datetime:
+    """Avança o horário para o próximo bloco de X minutos dentro do horário de operação."""
+    horario = inicio_base
+
+    # Arredonda para o próximo bloco de N minutos (para cima)
+    minutos_excedentes = horario.minute % DURACAO_CONSULTA_MINUTOS
+    if minutos_excedentes > 0:
+        horario += timedelta(minutes=DURACAO_CONSULTA_MINUTOS - minutos_excedentes)
+    elif horario.second > 0 or horario.microsecond > 0: # Se for exatamente no início do bloco mas tiver segundos
+         horario += timedelta(minutes=DURACAO_CONSULTA_MINUTOS)
+
+    horario = horario.replace(second=0, microsecond=0) # Zera segundos e microssegundos
+
+    # Ajusta para o horário de operação
+    while horario.hour < HORARIO_OPERACAO_INICIO:
+        horario = horario.replace(hour=HORARIO_OPERACAO_INICIO, minute=0)
+    while horario.hour >= HORARIO_OPERACAO_FIM:
+        horario += timedelta(days=1)
+        horario = horario.replace(hour=HORARIO_OPERACAO_INICIO, minute=0)
+
+    # Pula fins de semana (Sábado=5, Domingo=6)
+    while horario.weekday() >= 5:
+        horario += timedelta(days=1)
+        horario = horario.replace(hour=HORARIO_OPERACAO_INICIO, minute=0)
+
+    return horario
+
+def agendar_consulta(telefone: str, nome: str, email: str = None) -> datetime | None:
+    """
+    Encontra o próximo horário livre e agenda a consulta.
+    Retorna o datetime do horário agendado ou None se não encontrar.
+    """
+    if not consultas_db:
+        logging.error("Não é possível agendar: Sem conexão com DB.")
+        return None
+
+    # Usar UTC para armazenamento no DB é uma boa prática
+    agora_utc = datetime.now(timezone.utc)
+    # Começa a procurar X minutos à frente para dar tempo de processamento/pagamento
+    inicio_procura_utc = agora_utc + timedelta(minutes=DURACAO_CONSULTA_MINUTOS)
+
+    for i in range(MAX_TENTATIVAS_AGENDAMENTO):
+        horario_tentativa_utc = _proximo_horario_util(inicio_procura_utc)
+
+        # Verifica se já existe consulta nesse horário
+        try:
+            conflito = consultas_db.find_one({"horario": horario_tentativa_utc})
+            if not conflito:
+                # Encontrou horário livre, tenta inserir
+                consulta_doc = {
+                    "telefone": telefone,
+                    "nome": nome,
+                    "email": email,
+                    "horario": horario_tentativa_utc, # Armazena em UTC
+                    "status": "agendado", # Adiciona um status
+                    "criado_em": agora_utc
+                }
+                consultas_db.insert_one(consulta_doc)
+                logging.info(f"[AGENDA] Consulta marcada para {nome} ({telefone}) em {horario_tentativa_utc.isoformat()}")
+                return horario_tentativa_utc # Retorna o horário em UTC
+            else:
+                # Horário ocupado, avança para o próximo bloco
+                inicio_procura_utc = horario_tentativa_utc + timedelta(minutes=DURACAO_CONSULTA_MINUTOS)
+        except Exception as e:
+            logging.error(f"❌ ERRO ao tentar agendar/verificar conflito para {horario_tentativa_utc}: {e}")
+            # Se houver erro na verificação/inserção, pode ser melhor parar ou logar e continuar
+            return None # Ou levantar exceção
+
+    logging.warning(f"Não foram encontrados horários disponíveis para {telefone} após {MAX_TENTATIVAS_AGENDAMENTO} tentativas.")
+    return None # Retorna None se não encontrar horário
+
+def cancelar_consulta(telefone: str) -> int:
+    """Cancela todas as consultas futuras agendadas para um telefone."""
+    if not consultas_db:
+        logging.error("Não é possível cancelar: Sem conexão com DB.")
+        return 0
+
+    agora_utc = datetime.now(timezone.utc)
+    try:
+        # Deleta apenas consultas que ainda não ocorreram
+        resultado = consultas_db.delete_many({
+            "telefone": telefone,
+            "horario": {"$gt": agora_utc} # Maior que agora (futuro)
+        })
+        if resultado.deleted_count > 0:
+            logging.info(f"🗑️ Cancelada(s) {resultado.deleted_count} consulta(s) futura(s) de {telefone}")
+        else:
+            logging.info(f"Nenhuma consulta futura encontrada para cancelar para {telefone}")
+        return resultado.deleted_count
+    except Exception as e:
+        logging.error(f"❌ ERRO ao cancelar consulta(s) para {telefone}: {e}")
+        return 0
+
+def consultar_proximo_horario_disponivel() -> datetime | None:
+    """Consulta o próximo horário disponível sem agendar."""
+    if not consultas_db:
+        logging.error("Não é possível consultar horário: Sem conexão com DB.")
+        return None
+
+    agora_utc = datetime.now(timezone.utc)
+    inicio_procura_utc = agora_utc + timedelta(minutes=DURACAO_CONSULTA_MINUTOS) # Começa a procurar um pouco à frente
+
+    for i in range(MAX_TENTATIVAS_AGENDAMENTO):
+        horario_tentativa_utc = _proximo_horario_util(inicio_procura_utc)
+        try:
+            conflito = consultas_db.find_one({"horario": horario_tentativa_utc})
+            if not conflito:
+                logging.info(f"Próximo horário disponível encontrado: {horario_tentativa_utc.isoformat()}")
+                return horario_tentativa_utc # Retorna horário em UTC
+            else:
+                # Avança para o próximo bloco
+                inicio_procura_utc = horario_tentativa_utc + timedelta(minutes=DURACAO_CONSULTA_MINUTOS)
+        except Exception as e:
+            logging.error(f"❌ ERRO ao consultar próximo horário ({horario_tentativa_utc}): {e}")
+            return None # Retorna None em caso de erro
+
+    logging.warning(f"Nenhum horário disponível encontrado na consulta após {MAX_TENTATIVAS_AGENDAMENTO} tentativas.")
+    return None
+
+def formatar_horario_local(horario_utc: datetime, fuso_horario_local: str = 'America/Sao_Paulo') -> str:
+    """Formata um horário UTC para uma string legível no fuso horário local."""
+    if not horario_utc:
+        return "Indisponível"
+    try:
+        # Precisa da biblioteca pytz para fusos horários robustos: pip install pytz
+        import pytz
+        tz_local = pytz.timezone(fuso_horario_local)
+        horario_local = horario_utc.astimezone(tz_local)
+        # Ex: "15/04 14:30" (Terça-feira, 15 de Abril às 14:30)
+        return horario_local.strftime("%d/%m %H:%M") # Formato mais comum no Brasil
+        # return horario_local.strftime("%A, %d de %B às %H:%M") # Formato mais extenso
+    except ImportError:
+        logging.warning("Biblioteca pytz não instalada. Usando formatação UTC.")
+        return horario_utc.strftime("%d/%m %H:%M (UTC)") # Fallback para UTC
+    except Exception as e:
+        logging.error(f"Erro ao formatar horário {horario_utc} para fuso {fuso_horario_local}: {e}")
+        return "Erro na formatação"
+def consultar_horario():
+    return "amanhã às 10h"
+from pymongo import MongoClient
+from app.config import MONGO_URI
+from datetime import datetime
+
+mongo = MongoClient(MONGO_URI)
+leads = mongo["famdomes"]["leads"]
+
+def salvar_lead(paciente_id: str, canal: str, mensagem: str, intent: str, entidades: dict, risco: bool, tipo: str = "desconhecido"):
+    leads.update_one(
+        {"paciente_id": paciente_id},
+        {
+            "$set": {
+                "mensagem_original": mensagem,
+                "intent": intent,
+                "entidades": entidades,
+                "risco": risco,
+                "canal": canal,
+                "tipo": tipo,
+                "ultima_interacao": datetime.utcnow()
+            },
+            "$setOnInsert": {
+                "paciente_id": paciente_id,
+                "criado_em": datetime.utcnow()
+            }
+        },
+        upsert=True
+    )
+from app.utils.ollama import chamar_ollama as chamar_ollama_completo
+
+async def chamar_ollama(prompt: str, telefone: str) -> tuple[str, list]:
+    resposta, tokens = await chamar_ollama_completo(prompt, telefone)
+    return resposta, tokens
+from datetime import datetime
+import logging
+from pymongo import MongoClient
+from app.config import MONGO_URI
+from app.utils.agenda import agendar_consulta
+from app.utils.mensageria import enviar_mensagem
+
+# Conexão com MongoDB
+mongo = MongoClient(MONGO_URI)
+db = mongo["famdomes"]
+pagamentos = db["pagamentos"]
+
+# ✅ Iniciar sessão assim que gerar o link Stripe
+def iniciar_sessao(telefone: str, nome: str):
+    pagamentos.insert_one({
+        "telefone": telefone,
+        "nome": nome,
+        "status": "iniciado",
+        "criado_em": datetime.utcnow()
+    })
+    logging.info(f"📍 Sessão iniciada para {telefone}")
+
+# ✅ Marcar como pago no Mongo após Stripe
+def marcar_pagamento(telefone: str):
+    pagamentos.update_one(
+        {"telefone": telefone},
+        {
+            "$set": {
+                "status": "pago",
+                "pago_em": datetime.utcnow()
+            }
+        }
+    )
+    logging.info(f"💰 Pagamento confirmado para {telefone}")
+
+    # 🧠 Também agenda agora
+    consulta = agendar_consulta(telefone, nome="Paciente", email=None)
+    logging.info(f"📅 Consulta agendada para {telefone} em {consulta}")
+from pydantic import BaseModel
+
+class IAComandoInput(BaseModel):
+    telefone: str
+    nome: str
+    comando: str
+from fastapi import APIRouter, HTTPException
+from app.utils.contexto import limpar_contexto
+
+router = APIRouter()
+
+@router.post("/painel/resetar-contexto/{telefone}")
+def resetar_contexto(telefone: str):
+    if not telefone:
+        raise HTTPException(status_code=400, detail="Telefone é obrigatório.")
+    
+    try:
+        sucesso = limpar_contexto(telefone)
+        if sucesso:
+            return {"status": "resetado", "telefone": telefone}
+        else:
+            raise HTTPException(status_code=500, detail="Falha ao tentar limpar o contexto.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro inesperado: {str(e)}")
+from fastapi import APIRouter, Request
+from app.models.pagamentos import PagamentoRequest
+import stripe
+from app.config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+from app.utils.agenda import agendar_consulta
+from app.utils.mensageria import enviar_mensagem
+
+stripe.api_key = STRIPE_SECRET_KEY
+router = APIRouter()
+
+@router.post("/webhook")
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature")
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
+    except Exception as e:
+        return {"erro": str(e)}
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        telefone = session["metadata"].get("telefone")
+        nome = session["metadata"].get("nome", "Paciente")
+        email = session["metadata"].get("email")
+
+        horario = agendar_consulta(telefone, nome, email)
+
+        msg_paciente = (
+            f"✅ Olá {nome}, seu agendamento está confirmado!\n"
+            f"🕒 Horário: {horario.strftime('%d/%m %H:%M')}\n"
+            "Você será chamado pelo profissional nesse horário. Até lá!"
+        )
+        enviar_mensagem(telefone, msg_paciente)
+
+        msg_medico = f"👨‍⚕️ Novo agendamento: {nome} ({telefone}) às {horario.strftime('%d/%m %H:%M')}."
+        enviar_mensagem("MEDICO", msg_medico)
+
+        return {"status": "confirmado"}
+
+    return {"status": "ignorado"}
+from fastapi import APIRouter
+from pymongo import MongoClient
+from app.config import MONGO_URI
+
+router = APIRouter()
+
+mongo = MongoClient(MONGO_URI)
+colecao = mongo["famdomes"]["respostas_ia"]
+
+@router.get("/consulta/{token}")
+async def status_consulta(token: str):
+    return {
+        "token": token,
+        "status": "confirmado",
+        "mensagem": "Sua sessão está confirmada com um profissional."
+    }
+
+@router.get("/historico/{telefone}")
+async def historico_respostas(telefone: str):
+    resultados = colecao.find({"telefone": telefone}).sort("criado_em", -1)
+    historico = []
+    for doc in resultados:
+        historico.append({
+            "mensagem": doc.get("mensagem"),
+            "resposta": doc.get("resposta"),
+            "intent": doc.get("intent"),
+            "risco": doc.get("risco"),
+            "criado_em": doc.get("criado_em").isoformat()
+        })
+    return {"historico": historico}
+from fastapi import APIRouter, Request
+from app.utils.nlp import processar_mensagem  
+from app.utils.leads import salvar_lead
+from datetime import datetime
+
+router = APIRouter()
+
+@router.post("/chat/nlp")
+async def chat_nlp(request: Request):
+    dados = await request.json()
+    mensagem = dados.get("mensagem")
+    paciente_id = dados.get("paciente_id")
+    canal = dados.get("canal")
+
+    if not mensagem or not paciente_id:
+        return {"erro": "Dados incompletos"}
+
+    resultado = await processar_mensagem(mensagem, paciente_id, canal)
+
+    salvar_lead(
+        paciente_id=paciente_id,
+        canal=canal,
+        mensagem=mensagem,
+        intent=resultado["intent"],
+        entidades=resultado["entidades"],
+        risco=resultado["risco"]
+    )
+
+    return resultado
+import stripe
+from fastapi import APIRouter, Request, Header, HTTPException
+from app.config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+from app.utils.followup import marcar_pagamento
+from app.utils.mensageria import enviar_mensagem
+
+stripe.api_key = STRIPE_SECRET_KEY
+router = APIRouter()
+
+@router.post("/stripe/")
+async def stripe_webhook(request: Request, stripe_signature: str = Header(None)):
+    payload = await request.body()
+
+    try:
+        event = stripe.Webhook.construct_event(payload, stripe_signature, STRIPE_WEBHOOK_SECRET)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Webhook inválido: {e}")
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        telefone = session["metadata"].get("telefone")
+        nome = session["metadata"].get("nome", "Paciente")
+
+        if not telefone:
+            raise HTTPException(status_code=400, detail="Telefone não informado no metadata")
+
+        # ✅ Marcar pagamento e agendar
+        horario, nome_final = marcar_pagamento(telefone)
+
+        # 🧾 Mensagem de confirmação
+        msg_paciente = (
+            f"✅ Olá {nome_final}, seu agendamento está confirmado!\n"
+            f"🕒 Horário: {horario.strftime('%d/%m %H:%M')}\n"
+            "Você será chamado pelo profissional nesse horário. Até lá!"
+        )
+        await enviar_mensagem(telefone, msg_paciente)
+
+        msg_medico = f"👨‍⚕️ Novo agendamento: {nome_final} ({telefone}) às {horario.strftime('%d/%m %H:%M')}."
+        await enviar_mensagem("MEDICO", msg_medico)
+
+    return {"status": "ok"}
+from fastapi import APIRouter, Request
+import httpx
+from app.config import WHATSAPP_API_URL, WHATSAPP_TOKEN, MONGO_URI
+from pymongo import MongoClient
+from datetime import datetime
+
+router = APIRouter()
+
+mongo = MongoClient(MONGO_URI)
+acompanhamentos = mongo["famdomes"]["acompanhamentos"]
+
+@router.post("/webhook/rocketchat/")
+async def receber_rocketchat(request: Request):
+    body = await request.json()
+    mensagem = body.get("message", {}).get("msg")
+    telefone = body.get("message", {}).get("metadata", {}).get("phone")
+
+    if not mensagem or not telefone:
+        return {"erro": "mensagem ou telefone ausente"}
+
+    # 1. Marcar como acompanhado, se ainda não tiver sido
+    existente = acompanhamentos.find_one({"telefone": telefone})
+    if not existente:
+        acompanhamentos.insert_one({
+            "telefone": telefone,
+            "mensagem_inicial": mensagem,
+            "assumido_em": datetime.utcnow()
+        })
+
+    # 2. Enviar ao WhatsApp
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": telefone,
+        "type": "text",
+        "text": {
+            "body": mensagem
+        }
+    }
+
+    headers = {
+        "Authorization": f"Bearer {WHATSAPP_TOKEN}"
+    }
+
+    async with httpx.AsyncClient() as client:
+        r = await client.post(WHATSAPP_API_URL, json=payload, headers=headers)
+
+    return {
+        "status": "enviado",
+        "whatsapp_code": r.status_code,
+        "acompanhamento_registrado": not existente
+    }
+# routes/agendamento.py
+
+from fastapi import APIRouter
+from app.utils.agenda import consultar_horario
+
+router = APIRouter()
+
+@router.get("/agendamento/proximo")
+async def proximo_agendamento():
+    horario = consultar_horario()
+    return {"proximo_horario": horario}
+
+from fastapi import APIRouter, Request, Response, HTTPException
+from fastapi.responses import JSONResponse
+from app.config import WHATSAPP_VERIFY_TOKEN, WHATSAPP_FAMILIAR
+from app.utils.mensageria import enviar_mensagem
+from app.utils.nlp import processar_mensagem
+from app.utils.contexto import limpar_contexto
+import logging
+
+router = APIRouter()
+
+@router.get("/webhook/whatsapp/")
+async def verificar_webhook(request: Request):
+    args = request.query_params
+    mode = args.get("hub.mode")
+    token = args.get("hub.verify_token")
+    challenge = args.get("hub.challenge")
+    if mode == "subscribe" and token == WHATSAPP_VERIFY_TOKEN:
+        return Response(content=challenge, media_type="text/plain")
+    return Response(status_code=403)
+
+@router.post("/webhook/whatsapp/")
+async def receber_mensagem_whatsapp(request: Request):
+    try:
+        data = await request.json()
+        entry = data["entry"][0]
+        changes = entry["changes"][0]["value"]
+
+        if "messages" not in changes or "contacts" not in changes:
+            logging.info("📭 Evento ignorado – sem mensagens (pode ser status ou metadados).")
+            return Response(status_code=200)
+
+        mensagem = changes["messages"][0]["text"]["body"]
+        telefone = changes["messages"][0]["from"]
+        nome = changes["contacts"][0]["profile"].get("name", "Paciente")
+        logging.info(f"[FAMDOMES] Mensagem de {nome} ({telefone})")
+        logging.info(f"Mensagem: {mensagem}")
+
+        # 🔁 Comando especial para resetar conversa
+        if mensagem.strip().lower() == "melancia vermelha":
+            sucesso = limpar_contexto(telefone)
+            if sucesso:
+                await enviar_mensagem(telefone, "🔄 Conversa reiniciada. Pode começar de novo quando quiser.")
+            else:
+                await enviar_mensagem(telefone, "⚠️ Erro ao reiniciar a conversa. Tente novamente.")
+            return {"status": "contexto_resetado"}
+
+        # 🤖 Processamento normal
+        resultado = await processar_mensagem(mensagem, telefone, canal="whatsapp")
+
+        resposta = resultado["resposta"]
+
+        await enviar_mensagem(telefone, resposta)
+
+        if WHATSAPP_FAMILIAR and resultado["risco"]:
+            alerta = f"⚠️ Alerta FAMDOMES: Detecção de risco com {telefone}. Mensagem: “{mensagem}”."
+            await enviar_mensagem(WHATSAPP_FAMILIAR, alerta)
+
+        return Response(status_code=200)
+
+    except Exception as e:
+        logging.error(f"❌ ERRO no webhook: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from app.utils.agenda import agendar_consulta, cancelar_consulta, consultar_horario
+from app.utils.mensageria import enviar_mensagem
+from app.utils.followup import iniciar_sessao
+from app.config import STRIPE_SECRET_KEY
+import stripe
+
+router = APIRouter()
+stripe.api_key = STRIPE_SECRET_KEY
+
+class ComandoIA(BaseModel):
+    telefone: str
+    nome: str
+    comando: str  # Ex: "quero agendar", "ver horário", "cancelar"
+
+@router.post("/ia-comando")
+async def processar_comando_post(dados: ComandoIA):
+    return await processar_comando(dados.dict())
+
+# ✅ Função exportada para uso no webhook do WhatsApp
+async def processar_comando(dados: dict):
+    telefone = dados["telefone"]
+    nome = dados["nome"]
+    comando = dados["comando"].lower()
+
+    if "agendar" in comando:
+        iniciar_sessao(telefone, nome)
+
+        try:
+            session = stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                line_items=[{
+                    "price_data": {
+                        "currency": "brl",
+                        "product_data": {"name": "Consulta FAMDOMES"},
+                        "unit_amount": 10000  # R$100,00
+                    },
+                    "quantity": 1
+                }],
+                mode="payment",
+                success_url="https://famdomes.com.br/sucesso",
+                cancel_url="https://famdomes.com.br/cancelado",
+                metadata={
+                    "telefone": telefone,
+                    "nome": nome
+                }
+            )
+
+            await enviar_mensagem(telefone, f"✅ Para agendar sua consulta, clique no link e realize o pagamento:\n{session.url}")
+            return {"status": "link_gerado", "checkout_url": session.url}
+
+        except Exception as e:
+            await enviar_mensagem(telefone, "❌ Ocorreu um erro ao gerar o link de pagamento. Tente novamente mais tarde.")
+            raise HTTPException(status_code=500, detail=f"Erro ao criar checkout: {str(e)}")
+
+    elif "cancelar" in comando:
+        cancelar_consulta(telefone)
+        await enviar_mensagem(telefone, "✅ Sua consulta foi cancelada com sucesso.")
+        return {"status": "consulta_cancelada"}
+
+    elif "horário" in comando or "disponível" in comando:
+        horario = consultar_horario()
+        await enviar_mensagem(telefone, f"📅 Próximo horário disponível: {horario}")
+        return {"status": "horario_enviado", "horario": horario}
+
+    else:
+        await enviar_mensagem(telefone, "🤖 Desculpe, não entendi o que você deseja. Você pode dizer coisas como:\n- Quero agendar\n- Cancelar consulta\n- Ver horário disponível")
+        return {"status": "comando_desconhecido"}
+# routes/followup.py
+
+from fastapi import APIRouter
+from utils.followup import checar_followup
+
+router = APIRouter()
+
+@router.get("/verificar-followup")
+def verificar():
+    mensagens = checar_followup()
+    return {"mensagens": mensagens}
+from fastapi import FastAPI
+from app.routes import whatsapp, ia, stripe, agendamento, painel
+from fastapi import Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi import Response
+from app.config import WHATSAPP_VERIFY_TOKEN, API_KEY
+from app.routes import ia, stripe, whatsapp, agendamento, painel
+from app.routes import nlp
+from app.routes import resetar
+
+
+
+API_KEY_HEADER = "X-API-Key"
+app = FastAPI(title="FAMDOMES API")
+app.include_router(nlp.router)
+app.include_router(whatsapp.router, prefix="/chat")
+app.include_router(ia.router)
+app.include_router(stripe.router, prefix="/webhook")
+app.include_router(agendamento.router, prefix="/agenda")
+app.include_router(painel.router, prefix="/paciente")
+app.include_router(resetar.router)
+
+@app.post("/webhook/teste")
+async def webhook_teste(request: Request):
+    body = await request.json()
+    print("📥 Webhook recebido:")
+    print(body)
+    return JSONResponse(content={"status": "ok", "mensagem": "Webhook recebido com sucesso"})
+
+@app.middleware("http")
+async def autenticar_chave(request: Request, call_next):
+    path = str(request.url.path)
+
+    # Rotas públicas permitidas
+    is_webhook_externo = (
+    path.startswith("/painel/resetar-contexto") or
+    path.startswith("/chat/nlp") or
+    path.startswith("/chat/webhook/whatsapp") or 
+    path.startswith("/webhook/stripe") or  # ✅ corrigido aqui
+    path.startswith("/pagamento/criar_sessao") or
+    path.startswith("/agenda") or
+    path.startswith("/ia-in") or
+    path.startswith("/docs") or
+    path.startswith("/openapi.json") or
+    path.startswith("/favicon.ico") or
+    path == "/"
+)
+
+
+    if is_webhook_externo:
+        return await call_next(request)
+
+    # Validação da chave
+    chave = request.headers.get("X-API-Key") or request.headers.get("x-api-key")
+    if chave != API_KEY:
+        return JSONResponse(status_code=403, content={"erro": "Acesso negado"})
+
+    return await call_next(request)
+from pydantic import BaseModel
+
+class PagamentoRequest(BaseModel):
+    produto_id: str
+    email: str
+    telefone: str
+    redirect_url: str
+from pydantic import BaseModel
+
+class MensagemIA(BaseModel):
+    mensagem: str
+    paciente_id: str
+    canal: str
+from pydantic import BaseModel
+from typing import Optional, Dict
+from datetime import datetime
+
+class Lead(BaseModel):
+    paciente_id: str
+    canal: str
+    mensagem_original: str
+    intent: str
+    entidades: Dict
+    risco: bool
+    timestamp: datetime
+    tipo: Optional[str] = "desconhecido"
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MONGO_URI = os.getenv("MONGO_URI")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "gemma3")
+
+API_KEY = os.getenv("API_KEY")
+WHATSAPP_API_URL = os.getenv("WHATSAPP_API_URL")
+WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
+WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN")
+WHATSAPP_FAMILIAR = os.getenv("WHATSAPP_FAMILIAR")
+
+ROCKETCHAT_URL = os.getenv("ROCKETCHAT_URL")
+ROCKETCHAT_TOKEN = os.getenv("ROCKETCHAT_TOKEN")
+ROCKETCHAT_USER_ID = os.getenv("ROCKETCHAT_USER_ID")
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))

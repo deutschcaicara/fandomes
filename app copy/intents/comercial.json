@@ -1,0 +1,39 @@
+{
+    "MICRO_COMPROMISSO": {
+      "triggers": [],
+      "resposta": "Posso te fazer 3 perguntas rápidas pra entender como ajudar? 🙏",
+      "escala_humano": false
+    },
+    "PITCH_PLANO3": {
+      "triggers": [],
+      "resposta": "Você fala hoje com psicólogo e médico no mesmo dia por **R$ 199/mês**. Sem fidelidade. 🚀",
+      "escala_humano": false
+    },
+    "PITCH_PLANO1": {
+      "triggers": [],
+      "resposta": "Temos acompanhamento a partir de **R$ 79/mês** com psicólogo online semanal. 💡",
+      "escala_humano": false
+    },
+    "CALL_TO_ACTION": {
+      "triggers": [],
+      "resposta": "👉 Toque aqui para pagar com Pix e iniciar a triagem: https://pay.famdomes.com/px",
+      "escala_humano": false
+    },
+    "FOLLOW_UP_24H": {
+      "triggers": [],
+      "resposta": "Oi! Guardei sua vaga até hoje 23h. Qualquer dúvida, estou aqui. 🌱",
+      "escala_humano": false
+    },
+    "RECUSA_PRECO": {
+      "triggers": [],
+      "resposta": "Entendo. Posso enviar material gratuito sobre primeiros passos? 📘",
+      "escala_humano": true
+    },
+    "COMERCIAL_DETALHES_PLANO": {
+  "triggers": ["sim", "claro", "pode sim", "detalha", "explique"],
+  "resposta": "Temos planos a partir de R$ 79/mês, incluindo consultas online semanais com psicólogos. Prefere psicólogo ou médico para iniciar?",
+  "escala_humano": false
+}
+
+  }
+  

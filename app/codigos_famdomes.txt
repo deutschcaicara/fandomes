@@ -1,0 +1,112 @@
+
+
+# ===== ./utils/faq_respostas.py =====
+
+
+
+# ===== ./utils/questionario_pos_pagamento.py =====
+
+
+
+# ===== ./utils/ollama.py =====
+
+
+
+# ===== ./utils/prompt_builder.py =====
+
+
+
+# ===== ./utils/mensageria.py =====
+
+
+
+# ===== ./utils/contexto.py =====
+
+
+
+# ===== ./utils/nlp.py =====
+
+
+
+# ===== ./utils/risco.py =====
+
+
+
+# ===== ./utils/agenda.py =====
+
+
+
+# ===== ./utils/leads.py =====
+
+
+
+# ===== ./utils/ia_fallback.py =====
+
+
+
+# ===== ./utils/followup.py =====
+
+
+
+# ===== ./schemas/ia_comando.py =====
+
+
+
+# ===== ./routes/resetar.py =====
+
+
+
+# ===== ./routes/pagamentos.py =====
+
+
+
+# ===== ./routes/painel.py =====
+
+
+
+# ===== ./routes/nlp.py =====
+
+
+
+# ===== ./routes/stripe.py =====
+
+
+
+# ===== ./routes/rocketchat.py =====
+
+
+
+# ===== ./routes/agendamento.py =====
+
+
+
+# ===== ./routes/whatsapp.py =====
+
+
+
+# ===== ./routes/ia.py =====
+
+
+
+# ===== ./routes/followup.py =====
+
+
+
+# ===== ./main.py =====
+
+
+
+# ===== ./models/pagamentos.py =====
+
+
+
+# ===== ./models/atendimento.py =====
+
+
+
+# ===== ./models/leads.py =====
+
+
+
+# ===== ./config.py =====
+

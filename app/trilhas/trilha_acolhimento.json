@@ -1,0 +1,7 @@
+{
+  "nome": "Acolhimento Inicial",
+  "etapas": {
+    "1": { "pergunta": "Como você está se sentindo agora?" },
+    "2": { "pergunta": "Quer me contar um pouco do que te trouxe aqui hoje?" }
+  }
+}

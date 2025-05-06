@@ -1,0 +1,7 @@
+MENSAGEM_INICIAL = '''🧠 Olá! Eu sou da equipe FAMDOMES e estou aqui pra te ouvir com atenção.
+
+A gente sabe como é difícil lidar com situações de dependência química ou crises emocionais na família. Só de você ter vindo até aqui já mostra coragem e amor.
+
+Se quiser, posso te explicar rapidinho como funciona nossa consulta médica. É sigilosa, acessível e pode te dar o apoio que você precisa agora.
+
+Quer que eu te mostre como funciona?'''
